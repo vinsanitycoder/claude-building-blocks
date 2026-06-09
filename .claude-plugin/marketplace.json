@@ -1,0 +1,12 @@
+{
+  "name": "team-blocks",
+  "description": "Internal, reusable building blocks for our Claude Code apps — refined once, reused everywhere.",
+  "owner": { "name": "ZhenHub / Fynlo team" },
+  "plugins": [
+    {
+      "name": "building-blocks",
+      "source": "./plugins/building-blocks",
+      "description": "AI model + API-key settings, a CSV/Excel data importer, and a team activity monitor — as Claude skills (component code + wiring contract)."
+    }
+  ]
+}
