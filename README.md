@@ -21,7 +21,7 @@ This repo is a **Claude Code plugin marketplace**. Once installed, Claude auto-s
 
 **Install (you or a teammate):**
 ```
-/plugin marketplace add <your-org>/claude-building-blocks
+/plugin marketplace add vinsanitycoder/claude-building-blocks
 /plugin install building-blocks@team-blocks
 ```
 Then, in any project, just ask — e.g. *"add an AI model picker with a BYO API key"* — and Claude uses the `ai-model-settings` skill (component + wiring contract) instead of rebuilding it.

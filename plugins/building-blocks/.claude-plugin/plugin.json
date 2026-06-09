@@ -2,6 +2,6 @@
   "name": "building-blocks",
   "description": "Reusable, production-refined building blocks for our apps: an AI model + API-key settings control, a drag-drop CSV/Excel data importer with validation, and a team activity monitor (presence + heatmap + job health). Each is a skill bundling the component code plus its server-side wiring contract.",
   "author": { "name": "ZhenHub / Fynlo team" },
-  "homepage": "https://github.com/REPLACE-ME/claude-building-blocks",
+  "homepage": "https://github.com/vinsanitycoder/claude-building-blocks",
   "license": "UNLICENSED"
 }
