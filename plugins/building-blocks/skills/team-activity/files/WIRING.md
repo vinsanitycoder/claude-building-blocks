@@ -55,7 +55,7 @@ Attribute elapsed time to the day it was *spent* (`localDay(prev.lastSeen)`), no
 
 ## 4. Shape the data for the component
 - `users`: join your users table with `presence` (status, lastSeen, role).
-- `segments`: build from `presence_events` for today — walk the events, emitting `{from, to, status}` blocks between transitions (clip to `[startMs, nowMs]`).
+- `segments`: build from `presence_events` for today — walk the events, emitting `{from, to, status}` blocks between transitions. ⚠️ **Clip the final/open block to the user's last heartbeat (`last_seen` + ~60s grace), NOT to `now`.** Heartbeats stop when a tab closes but a clean "logout" event may never arrive — if you extend the last status to `now`, an absent person shows as "active" all evening. Capping at `last_seen` makes the bar end where their heartbeats actually stopped (a currently-online user heartbeats every ~30s, so +60s still reaches ~now for them).
 - `month`: `SELECT user_id, day, active_seconds FROM activity_daily WHERE day LIKE '<YYYY-MM>%'` → cells.
 - `events`: recent `presence_events` joined with names.
 - `pollHealth` (optional): your own background-job heartbeat row.
