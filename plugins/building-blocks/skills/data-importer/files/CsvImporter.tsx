@@ -13,7 +13,7 @@
  *
  * Backend-agnostic: parsing + preview are fully client-side, so it works in the playground with a stub onImport.
  */
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
 import Papa from "papaparse";
 import { parseSpreadsheet } from "./parseSpreadsheet";
 
@@ -52,7 +52,7 @@ export function CsvImporter<T>({
   const [parseError, setParseError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [result, setResult] = useState<{ imported: number; skipped: { row: number; reason: string }[] } | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const valid = rows.filter((r): r is Extract<RowState<T>, { ok: true }> => r.ok);
@@ -96,17 +96,18 @@ export function CsvImporter<T>({
     }
   }
 
-  function commit() {
-    startTransition(async () => {
-      try {
-        const res = await onImport(valid.map((r) => r.value));
-        setResult(res);
-        setRows([]);
-        setFileName(null);
-      } catch (e) {
-        setParseError(e instanceof Error ? e.message : "Import failed — please try again.");
-      }
-    });
+  async function commit() {
+    setPending(true);
+    try {
+      const res = await onImport(valid.map((r) => r.value));
+      setResult(res);
+      setRows([]);
+      setFileName(null);
+    } catch (e) {
+      setParseError(e instanceof Error ? e.message : "Import failed — please try again.");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
