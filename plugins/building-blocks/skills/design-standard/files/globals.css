@@ -1,0 +1,115 @@
+/* globals.css — the base design-standard token foundation.
+   Framework-agnostic: drop into any app (Tailwind or not). Pairs with themes.css (colour groups),
+   fonts.ts (type packs), tailwind.config.ts (optional Tailwind mapping), and DESIGN_STANDARD.md (the spec).
+
+   Two tiers:
+     TIER 1 (structural, brand-agnostic) — spacing, type sizes, radius, shadow, motion, z, chart.
+     TIER 2 (semantic colour) — role-named tokens. The default below is the neutral "slate" group;
+            switch palettes with themes.css ([data-theme="ocean"] …) and brand on top of that.
+   Dark mode = the same token names re-valued under .dark. Components never change between themes. */
+
+:root {
+  /* ---- TIER 1: structural primitives (never change per brand) ---- */
+  --space-0:0; --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem;
+  --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem; --space-10:2.5rem; --space-12:3rem;
+  --space-16:4rem; --space-20:5rem; --space-24:6rem;
+
+  --text-xs:.75rem;   --leading-xs:1rem;
+  --text-sm:.875rem;  --leading-sm:1.25rem;
+  --text-base:1rem;   --leading-base:1.5rem;
+  --text-lg:1.125rem; --leading-lg:1.75rem;
+  --text-xl:1.25rem;  --leading-xl:1.75rem;
+  --text-2xl:1.5rem;  --leading-2xl:2rem;
+  --text-3xl:1.875rem;--leading-3xl:2.25rem;
+  --text-4xl:2.25rem; --leading-4xl:2.5rem;
+  --text-5xl:3rem;    --leading-5xl:1;
+
+  --radius:.625rem; /* 10px base; the one structural value a brand MAY retune */
+
+  --shadow-xs:0 1px 2px 0 hsl(0 0% 0% / .05);
+  --shadow-sm:0 1px 3px 0 hsl(0 0% 0% / .08), 0 1px 2px -1px hsl(0 0% 0% / .08);
+  --shadow-md:0 4px 6px -1px hsl(0 0% 0% / .1), 0 2px 4px -2px hsl(0 0% 0% / .1);
+  --shadow-lg:0 10px 15px -3px hsl(0 0% 0% / .12), 0 4px 6px -4px hsl(0 0% 0% / .1);
+  --shadow-xl:0 20px 25px -5px hsl(0 0% 0% / .14), 0 8px 10px -6px hsl(0 0% 0% / .12);
+
+  --duration-fast:150ms; --duration-base:200ms; --duration-slow:300ms;
+  --ease-standard:cubic-bezier(.2,0,0,1);
+  --ease-decelerate:cubic-bezier(0,0,0,1);
+  --ease-accelerate:cubic-bezier(.3,0,1,1);
+
+  --z-dropdown:1000; --z-sticky:1020; --z-fixed:1030; --z-drawer-scrim:1040; --z-drawer:1045;
+  --z-modal-scrim:1050; --z-modal:1055; --z-popover:1070; --z-tooltip:1080; --z-toast:1090;
+
+  /* chart palette (Okabe-Ito, colourblind-safe; brand-agnostic, shared across themes) */
+  --chart-1:#009E73; --chart-2:#0072B2; --chart-3:#D55E00; --chart-4:#CC79A7;
+  --chart-5:#E69F00; --chart-6:#56B4E9; --chart-7:#F0E442; --chart-8:#999999;
+
+  /* fonts — a font pack (fonts.ts) overrides --font-sans / --font-display; here = system fallback */
+  --font-sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-display:var(--font-sans);
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+
+  /* ---- TIER 2: semantic colour (default = neutral "slate" group, light) ---- */
+  --color-background:#ffffff;        --color-foreground:#1c2024;
+  --color-card:#ffffff;              --color-card-foreground:#1c2024;
+  --color-popover:#ffffff;           --color-popover-foreground:#1c2024;
+  --color-primary:#1c2024;           --color-primary-foreground:#ffffff;
+  --color-secondary:#f0f0f3;         --color-secondary-foreground:#1c2024;
+  --color-muted:#f0f0f3;             --color-muted-foreground:#60646c;
+  --color-accent:#e8e8ec;            --color-accent-foreground:#1c2024;
+  --color-destructive:#ce2c31;       --color-destructive-foreground:#ffffff;
+  --color-success:#16a34a;           --color-success-foreground:#ffffff;
+  --color-warning:#d98200;           --color-warning-foreground:#1c1917;
+  --color-border:#d9d9e0;            --color-input:#cdced6;            --color-ring:#8b8d98;
+  --color-link:var(--color-primary); --color-link-visited:#6b4fc4;
+}
+
+.dark {
+  --color-background:#111113;        --color-foreground:#edeef0;
+  --color-card:#18191b;              --color-card-foreground:#edeef0;
+  --color-popover:#18191b;           --color-popover-foreground:#edeef0;
+  --color-primary:#edeef0;           --color-primary-foreground:#18191b;
+  --color-secondary:#212225;         --color-secondary-foreground:#edeef0;
+  --color-muted:#212225;             --color-muted-foreground:#b0b4ba;
+  --color-accent:#272a2d;            --color-accent-foreground:#edeef0;
+  --color-destructive:#ec5d5e;       --color-destructive-foreground:#ffffff;
+  --color-success:#30a46c;           --color-success-foreground:#0e1512;
+  --color-warning:#ffc53d;           --color-warning-foreground:#1c1917;
+  --color-border:#363a3f;            --color-input:#43484e;            --color-ring:#696e77;
+  --color-link:var(--color-primary); --color-link-visited:#b8a6e6;
+}
+
+/* ---- reset + base elements ---- */
+*, *::before, *::after { box-sizing: border-box; border-color: var(--color-border); }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-base);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1,h2,h3,h4,h5,h6 { font-family: var(--font-display); line-height: 1.15; margin: 0; }
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: .15em;
+  text-decoration-thickness: .08em;
+  text-decoration-skip-ink: auto;
+  transition: text-decoration-thickness var(--duration-fast);
+}
+a:hover { text-decoration-thickness: .14em; }
+a:visited { color: var(--color-link-visited); }
+a:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; border-radius: 2px; }
+:where(p,li,td,h1,h2,h3,h4) > code {
+  font-family: var(--font-mono); font-size: .875em;
+  background: var(--color-muted); padding: .15em .35em; border-radius: .3em;
+  box-decoration-break: clone; -webkit-box-decoration-break: clone;
+}
+::selection { background: var(--color-accent); color: var(--color-accent-foreground); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}

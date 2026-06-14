@@ -1,0 +1,105 @@
+/* components.css — base component styles, driven entirely by the tokens in globals.css.
+   Framework-agnostic (no Tailwind needed). The React wrappers in components/ render these classes.
+   Every actionable element implements the universal state cycle: rest → hover (lift+shadow) →
+   press (compress) → release (spring back) → focus-visible → disabled → loading. */
+
+/* ===== Button ===== */
+.ds-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  height: 2.5rem; padding: 0 var(--space-4);
+  font-family: inherit; font-size: var(--text-sm); font-weight: 500; line-height: 1;
+  border: 1px solid transparent; border-radius: calc(var(--radius) - 2px);
+  cursor: pointer; white-space: nowrap; user-select: none;
+  transition: background-color var(--duration-fast), color var(--duration-fast),
+              box-shadow var(--duration-fast), transform 120ms var(--ease-standard), opacity var(--duration-fast);
+}
+@media (hover: hover) {
+  .ds-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+}
+.ds-btn:active { transform: scale(.97); box-shadow: var(--shadow-xs); }   /* press; release springs back via transition */
+.ds-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-ring); }
+.ds-btn:disabled, .ds-btn[aria-disabled="true"] { opacity: .5; pointer-events: none; box-shadow: none; transform: none; }
+
+.ds-btn--sm   { height: 2rem;   padding: 0 var(--space-3); font-size: var(--text-sm); }
+.ds-btn--lg   { height: 2.75rem; padding: 0 var(--space-6); font-size: var(--text-base); }
+.ds-btn--icon { width: 2.5rem; padding: 0; }
+
+.ds-btn--primary     { background: var(--color-primary); color: var(--color-primary-foreground); }
+.ds-btn--primary:hover     { opacity: .92; }
+.ds-btn--secondary   { background: var(--color-secondary); color: var(--color-secondary-foreground); }
+.ds-btn--secondary:hover   { opacity: .85; }
+.ds-btn--outline     { background: transparent; border-color: var(--color-border); color: var(--color-foreground); }
+.ds-btn--outline:hover     { background: var(--color-accent); color: var(--color-accent-foreground); }
+.ds-btn--ghost       { background: transparent; color: var(--color-foreground); }
+.ds-btn--ghost:hover       { background: var(--color-accent); color: var(--color-accent-foreground); }
+.ds-btn--destructive { background: var(--color-destructive); color: var(--color-destructive-foreground); }
+.ds-btn--destructive:hover { opacity: .92; }
+.ds-btn--link { background: transparent; color: var(--color-link); height: auto; padding: 0 2px; text-decoration: underline; text-underline-offset: .15em; }
+.ds-btn--link:hover { box-shadow: none; transform: none; text-decoration-thickness: .12em; }
+
+/* ===== Input / Textarea ===== */
+.ds-input {
+  display: block; width: 100%; height: 2.5rem; padding: 0 var(--space-3);
+  font-family: inherit; font-size: var(--text-sm); color: var(--color-foreground);
+  background: var(--color-background); border: 1px solid var(--color-input);
+  border-radius: calc(var(--radius) - 2px);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(--space-3); line-height: var(--leading-base); resize: vertical; }
+.ds-input::placeholder { color: var(--color-muted-foreground); }
+@media (hover: hover) { .ds-input:hover { border-color: var(--color-muted-foreground); } }
+.ds-input:focus-visible, .ds-input:focus { outline: none; border-color: var(--color-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 22%, transparent); }
+.ds-input:disabled { opacity: .5; cursor: not-allowed; }
+.ds-input--error { border-color: var(--color-destructive); }
+.ds-input--error:focus-visible, .ds-input--error:focus { border-color: var(--color-destructive);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-destructive) 22%, transparent); }
+
+/* ===== Label / helper / error ===== */
+.ds-label { display: block; font-size: var(--text-sm); font-weight: 500; color: var(--color-foreground); margin-bottom: var(--space-2); }
+.ds-help  { font-size: var(--text-sm); color: var(--color-muted-foreground); margin-top: var(--space-2); }
+.ds-error { font-size: var(--text-sm); color: var(--color-destructive); margin-top: var(--space-2);
+  display: inline-flex; align-items: center; gap: var(--space-1); }
+
+/* ===== Card ===== */
+.ds-card {
+  background: var(--color-card); color: var(--color-card-foreground);
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  padding: var(--space-6); box-shadow: var(--shadow-sm);
+}
+.ds-card--interactive { cursor: pointer; transition: box-shadow var(--duration-fast), transform var(--duration-fast); }
+@media (hover: hover) { .ds-card--interactive:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); } }
+.ds-card--interactive:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+.ds-card__title { font-size: var(--text-xl); font-weight: 600; }
+.ds-card__desc  { font-size: var(--text-sm); color: var(--color-muted-foreground); margin-top: var(--space-1); }
+
+/* ===== Badge ===== */
+.ds-badge {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  font-size: var(--text-xs); font-weight: 500; line-height: 1.5; padding: 2px var(--space-2);
+  border-radius: 999px; border: 1px solid transparent;
+}
+.ds-badge--default     { background: var(--color-primary); color: var(--color-primary-foreground); }
+.ds-badge--secondary   { background: var(--color-muted); color: var(--color-muted-foreground); }
+.ds-badge--outline     { background: transparent; border-color: var(--color-border); color: var(--color-foreground); }
+.ds-badge--success     { background: color-mix(in srgb, var(--color-success) 16%, var(--color-card)); color: var(--color-success); }
+.ds-badge--warning     { background: color-mix(in srgb, var(--color-warning) 20%, var(--color-card)); color: var(--color-warning); }
+.ds-badge--destructive { background: color-mix(in srgb, var(--color-destructive) 14%, var(--color-card)); color: var(--color-destructive); }
+
+/* ===== Separator ===== */
+.ds-separator { background: var(--color-border); border: 0; }
+.ds-separator--horizontal { height: 1px; width: 100%; margin: var(--space-4) 0; }
+.ds-separator--vertical { width: 1px; align-self: stretch; margin: 0 var(--space-4); }
+
+/* ===== Spinner ===== */
+.ds-spinner {
+  display: inline-block; width: 1.25rem; height: 1.25rem;
+  border: 2px solid color-mix(in srgb, var(--color-foreground) 18%, transparent);
+  border-top-color: var(--color-primary); border-radius: 50%;
+  animation: ds-spin .7s linear infinite;
+}
+@keyframes ds-spin { to { transform: rotate(360deg); } }
+
+/* ===== Skeleton ===== */
+.ds-skeleton { background: var(--color-muted); border-radius: calc(var(--radius) - 4px); animation: ds-pulse 1.5s ease-in-out infinite; }
+@keyframes ds-pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }

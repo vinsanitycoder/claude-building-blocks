@@ -1,16 +1,18 @@
 import { useState } from "react";
+import { DesignStandardDemo } from "./demos/DesignStandardDemo";
 import { AiModelDemo } from "./demos/AiModelDemo";
 import { ImporterDemo } from "./demos/ImporterDemo";
 import { TeamActivityDemo } from "./demos/TeamActivityDemo";
 
 const TABS = [
+  { id: "design", label: "Design standard", el: <DesignStandardDemo /> },
   { id: "ai", label: "AI model + key", el: <AiModelDemo /> },
   { id: "importer", label: "Data importer", el: <ImporterDemo /> },
   { id: "team", label: "Team activity", el: <TeamActivityDemo /> },
 ] as const;
 
 export function App() {
-  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("ai");
+  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("design");
   const active = TABS.find((t) => t.id === tab)!;
 
   return (
