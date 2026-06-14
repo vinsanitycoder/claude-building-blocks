@@ -13,5 +13,10 @@
     "strict": true,
     "esModuleInterop": true
   },
-  "include": ["src", "plugins/building-blocks/skills/**/files"]
+  "include": ["src", "plugins/building-blocks/skills/**/files"],
+  "_comment": "fonts.ts + tailwind.config.ts are copy-into-your-app templates importing target-app deps (next/font, geist, tailwindcss) not installed in this playground; excluded from the playground type-check.",
+  "exclude": [
+    "plugins/building-blocks/skills/design-standard/files/fonts.ts",
+    "plugins/building-blocks/skills/design-standard/files/tailwind.config.ts"
+  ]
 }

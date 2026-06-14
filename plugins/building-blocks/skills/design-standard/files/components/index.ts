@@ -15,3 +15,21 @@ export type { SeparatorProps } from "./Separator";
 export { Spinner } from "./Spinner";
 export type { SpinnerProps } from "./Spinner";
 export { Skeleton } from "./Skeleton";
+
+// — interactive set —
+export { Switch } from "./Switch";
+export type { SwitchProps } from "./Switch";
+export { Checkbox } from "./Checkbox";
+export type { CheckboxProps } from "./Checkbox";
+export { RadioGroup, RadioGroupItem } from "./RadioGroup";
+export type { RadioGroupProps, RadioGroupItemProps } from "./RadioGroup";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
+export type { TabsProps, TabsTriggerProps, TabsContentProps } from "./Tabs";
+export { Tooltip } from "./Tooltip";
+export type { TooltipProps } from "./Tooltip";
+export { Dialog, DialogTitle, DialogDescription, DialogFooter } from "./Dialog";
+export type { DialogProps } from "./Dialog";
+export { Select } from "./Select";
+export type { SelectProps } from "./Select";
+export { ToastProvider, useToast } from "./Toast";
+export type { ToastOptions, ToastVariant } from "./Toast";
