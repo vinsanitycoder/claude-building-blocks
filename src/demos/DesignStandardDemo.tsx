@@ -15,6 +15,8 @@ import {
   Calendar,
   Drawer, DrawerHeader, DrawerBody, DrawerFooter,
   Accordion, AccordionItem, Stepper, CommandPalette,
+  Field, NumberInput, SegmentedControl, Popover, HoverCard, Combobox, DatePicker,
+  EmptyState, StatCard, DataTable, FileUpload, TagInput,
 } from "../../plugins/building-blocks/skills/design-standard/files/components";
 
 const THEMES = [
@@ -397,7 +399,23 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [cmdOpen, setCmdOpen] = React.useState(false);
   const [accordionOpen, setAccordionOpen] = React.useState<string[]>(["spacing"]);
+  const [qty, setQty] = React.useState(2);
+  const [seg, setSeg] = React.useState("month");
+  const [combo, setCombo] = React.useState("");
+  const [pickDate, setPickDate] = React.useState<string | null>(null);
+  const [tags, setTags] = React.useState<string[]>(["design", "docs"]);
+  const [emailErr, setEmailErr] = React.useState(false);
   const { toast } = useToast();
+
+  const COUNTRIES = [
+    "Australia", "Brazil", "Canada", "France", "Germany", "Japan", "Philippines", "Singapore", "United Kingdom", "United States",
+  ].map((c) => ({ value: c.toLowerCase().replace(/\s+/g, "-"), label: c }));
+  const TABLE_ROWS = [
+    { name: "Aurora Labs", plan: "Scale", seats: 48, mrr: 7200, status: "Active" },
+    { name: "Beacon Co", plan: "Team", seats: 12, mrr: 1440, status: "Active" },
+    { name: "Cirrus", plan: "Free", seats: 3, mrr: 0, status: "Trial" },
+    { name: "Delta Works", plan: "Scale", seats: 76, mrr: 11400, status: "Past due" },
+  ];
 
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -548,6 +566,105 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
           Those were community fabrications. See the spec's Sources section.
         </AccordionItem>
       </Accordion>
+
+      <Separator style={{ margin: "24px 0" }} />
+      <p style={lbl}>Everything-common batch · forms, anchored panels, data, entry</p>
+
+      {/* Metric cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 16, marginBottom: 20 }}>
+        <StatCard label="MRR" value="$20,040" delta="12%" trend="up" chart={<Sparkline data={[8, 9, 11, 10, 13, 15, 20]} width={64} height={24} />} />
+        <StatCard label="Active seats" value="139" delta="8" trend="up" />
+        <StatCard label="Churn" value="2.1%" delta="0.4%" trend="up" upIsGood={false} />
+        <StatCard label="Trials" value="6" delta="flat" trend="flat" />
+      </div>
+
+      {/* Form units */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: "var(--stack-group)", marginBottom: 20 }}>
+        <Field label="Work email" help="We'll only use this for billing." error={emailErr ? "Enter a valid email address." : undefined}>
+          <Input placeholder="you@company.com" onBlur={(e) => setEmailErr(!!e.target.value && !e.target.value.includes("@"))} />
+        </Field>
+        <Field label="Country">
+          <Combobox options={COUNTRIES} value={combo} onValueChange={setCombo} placeholder="Select country" />
+        </Field>
+        <Field label="Renewal date">
+          <DatePicker value={pickDate} onChange={setPickDate} />
+        </Field>
+        <Field label="Seats" help="Sized to its content, not full-width.">
+          <NumberInput value={qty} onValueChange={setQty} min={1} max={99} />
+        </Field>
+      </div>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 24, alignItems: "flex-start", marginBottom: 20 }}>
+        <div>
+          <p style={lbl}>Segmented control</p>
+          <SegmentedControl
+            value={seg}
+            onValueChange={setSeg}
+            options={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }, { value: "month", label: "Month" }]}
+            aria-label="Range"
+          />
+        </div>
+        <div>
+          <p style={lbl}>Tag input</p>
+          <TagInput value={tags} onChange={setTags} placeholder="Add a tag…" />
+        </div>
+        <div>
+          <p style={lbl}>Popover · HoverCard</p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Popover trigger={<Button variant="outline">Filters</Button>}>
+              <Stack gap={3}>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>Filter results</div>
+                <div><Label>Status</Label><Input placeholder="Any" /></div>
+                <Button size="sm">Apply</Button>
+              </Stack>
+            </Popover>
+            <HoverCard trigger={<a href="#" onClick={(e) => e.preventDefault()} style={{ color: "var(--color-primary)" }}>@aurora</a>}>
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <Avatar initials="AL" status="online" />
+                <div>
+                  <div style={{ fontWeight: 600 }}>Aurora Labs</div>
+                  <div style={{ color: "var(--color-muted-foreground)", fontSize: 13 }}>Scale plan · 48 seats</div>
+                </div>
+              </div>
+            </HoverCard>
+          </div>
+        </div>
+      </div>
+
+      {/* Data table */}
+      <div style={{ marginBottom: 20 }}>
+        <p style={lbl}>Data table · sortable, scannable</p>
+        <DataTable
+          rows={TABLE_ROWS}
+          rowKey={(r) => r.name}
+          density="compact"
+          columns={[
+            { key: "name", header: "Account", sortable: true },
+            { key: "plan", header: "Plan", sortable: true },
+            { key: "seats", header: "Seats", align: "right", sortable: true },
+            { key: "mrr", header: "MRR", align: "right", sortable: true, cell: (r) => `$${r.mrr.toLocaleString()}` },
+            { key: "status", header: "Status", cell: (r) => <Badge variant={r.status === "Past due" ? "destructive" : r.status === "Trial" ? "warning" : "success"}>{r.status}</Badge> },
+          ]}
+        />
+      </div>
+
+      {/* File upload + empty state */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16, marginBottom: 8 }}>
+        <FileUpload
+          accept="image/png,image/jpeg,.pdf"
+          maxSize={15 * 1024 * 1024}
+          hint="PNG, JPG or PDF · up to 15MB"
+          onFiles={(f) => toast({ title: `Selected ${f[0]?.name}` })}
+          onReject={(b) => toast({ title: b[0]?.reason ?? "Rejected", variant: "destructive" })}
+        />
+        <div style={{ border: "1px solid var(--color-border)", borderRadius: "var(--radius)" }}>
+          <EmptyState
+            title="No invoices yet"
+            description="Invoices appear here once your first billing cycle closes."
+            action={<Button size="sm">Create invoice</Button>}
+          />
+        </div>
+      </div>
 
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} side="right" size="md">
         <DrawerHeader>Filter results</DrawerHeader>

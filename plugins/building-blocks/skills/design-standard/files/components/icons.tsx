@@ -14,3 +14,4 @@ export const XIcon = (p: React.SVGProps<SVGSVGElement>) => (<svg {...base(p)}><p
 export const InfoIcon = (p: React.SVGProps<SVGSVGElement>) => (<svg {...base(p)}><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>);
 export const CheckCircleIcon = (p: React.SVGProps<SVGSVGElement>) => (<svg {...base(p)}><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></svg>);
 export const AlertIcon = (p: React.SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z" /><path d="M12 9v4M12 17h.01" /></svg>);
+export const UploadIcon = (p: React.SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>);
