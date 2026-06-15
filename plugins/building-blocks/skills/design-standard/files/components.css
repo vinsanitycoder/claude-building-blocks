@@ -191,3 +191,46 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
   display: inline-flex; padding: 2px; border-radius: 4px; }
 .ds-toast__close:hover { color: var(--color-foreground); background: var(--color-accent); }
 @keyframes ds-toast-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+
+/* ===== Anchored dropdown (menu + custom select) ===== */
+/* The panel is positioned RELATIVE TO ITS TRIGGER (top:100%), so it reads as unfolding from the
+   trigger and slides down — never a detached panel floating in the middle. */
+.ds-dd { position: relative; display: inline-block; }
+.ds-dd__panel {
+  position: absolute; top: calc(100% + 4px); left: 0; min-width: 100%;
+  background: var(--color-popover); color: var(--color-popover-foreground);
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); padding: 4px; z-index: var(--z-dropdown);
+  transform-origin: top; animation: ds-dd-in var(--duration-fast) var(--ease-decelerate);
+}
+.ds-dd__panel--end { left: auto; right: 0; }
+@keyframes ds-dd-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.ds-dd__item {
+  display: flex; align-items: center; gap: var(--space-2); height: 2.125rem; padding: 0 var(--space-3);
+  border-radius: calc(var(--radius) - 4px); font-size: var(--text-sm); color: var(--color-foreground);
+  cursor: pointer; white-space: nowrap; border: none; background: none; width: 100%; text-align: left; font-family: inherit;
+}
+.ds-dd__item:hover, .ds-dd__item[aria-selected="true"], .ds-dd__item:focus-visible {
+  background: var(--color-accent); color: var(--color-accent-foreground); outline: none;
+}
+.ds-dd__item--destructive { color: var(--color-destructive); }
+.ds-dd__sep { height: 1px; background: var(--color-border); margin: 4px 6px; border: 0; }
+
+/* custom select trigger — looks like the input field, with a chevron that flips when open */
+.ds-select-trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  width: 100%; height: 2.5rem; padding: 0 var(--space-3);
+  font-family: inherit; font-size: var(--text-sm); color: var(--color-foreground); text-align: left;
+  background: var(--color-background); border: 1px solid var(--color-input);
+  border-radius: calc(var(--radius) - 2px); cursor: pointer;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+@media (hover: hover) { .ds-select-trigger:hover { border-color: var(--color-muted-foreground); } }
+.ds-select-trigger:focus-visible { outline: none; border-color: var(--color-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 22%, transparent); }
+.ds-select-trigger[aria-expanded="true"] { border-color: var(--color-ring); }
+.ds-select-trigger:disabled { opacity: .5; cursor: not-allowed; }
+.ds-select-trigger--error { border-color: var(--color-destructive); }
+.ds-select-trigger__chevron { color: var(--color-muted-foreground); flex: none; transition: transform var(--duration-fast); }
+.ds-select-trigger[aria-expanded="true"] .ds-select-trigger__chevron { transform: rotate(180deg); }
+.ds-select-trigger__placeholder { color: var(--color-muted-foreground); }

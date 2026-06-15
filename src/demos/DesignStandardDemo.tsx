@@ -7,6 +7,7 @@ import {
   Switch, Checkbox, RadioGroup, RadioGroupItem,
   Tabs, TabsList, TabsTrigger, TabsContent, Tooltip,
   Dialog, DialogTitle, DialogDescription, DialogFooter, Select,
+  DropdownMenu, DropdownMenuItem, DropdownMenuSeparator,
   ToastProvider, useToast,
 } from "../../plugins/building-blocks/skills/design-standard/files/components";
 
@@ -94,11 +95,15 @@ function DemoInner() {
           </div>
           <div>
             <Label htmlFor="d-sel">Plan</Label>
-            <Select id="d-sel" defaultValue="pro">
-              <option value="free">Free</option>
-              <option value="pro">Pro</option>
-              <option value="team">Team</option>
-            </Select>
+            <Select
+              id="d-sel"
+              defaultValue="pro"
+              options={[
+                { value: "free", label: "Free" },
+                { value: "pro", label: "Pro" },
+                { value: "team", label: "Team" },
+              ]}
+            />
           </div>
         </div>
 
@@ -118,6 +123,12 @@ function DemoInner() {
           </Tooltip>
         </div>
         <div style={row()}>
+          <DropdownMenu trigger={<Button variant="outline">Options ▾</Button>}>
+            <DropdownMenuItem onSelect={() => toast({ title: "Profile" })}>Profile</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => toast({ title: "Settings" })}>Settings</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem destructive onSelect={() => toast({ title: "Deleted", variant: "destructive" })}>Delete account</DropdownMenuItem>
+          </DropdownMenu>
           <Button variant="outline" onClick={() => setOpen(true)}>Open dialog</Button>
           <Button variant="outline" onClick={() => toast({ title: "Changes saved", description: "Your edits are live.", variant: "success" })}>Toast: success</Button>
           <Button variant="outline" onClick={() => toast({ title: "Couldn't connect", description: "Check your network.", variant: "destructive" })}>Toast: error</Button>
