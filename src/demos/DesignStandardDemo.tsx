@@ -25,6 +25,33 @@ const THEMES = [
 const lbl = { fontSize: 12, fontWeight: 500, color: "var(--color-muted-foreground)", margin: "0 0 12px" } as const;
 const row = (gap = 8) => ({ display: "flex", flexWrap: "wrap" as const, gap, alignItems: "center" });
 
+// Font packs (families loaded via the Google Fonts <link> in index.html; Signal/Geist falls back to system).
+const FONT_PACKS: { id: string; label: string; body: string; display: string }[] = [
+  { id: "signal", label: "Signal", body: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif", display: "Geist, ui-sans-serif, system-ui, sans-serif" },
+  { id: "broadsheet", label: "Broadsheet", body: '"Source Serif 4", Georgia, Cambria, serif', display: "Fraunces, ui-serif, Georgia, serif" },
+  { id: "marshmallow", label: "Marshmallow", body: 'Nunito, ui-rounded, "Segoe UI", system-ui, sans-serif', display: "Quicksand, ui-rounded, system-ui, sans-serif" },
+  { id: "terminal", label: "Terminal", body: "Inter, ui-sans-serif, system-ui, sans-serif", display: '"Space Grotesk", ui-sans-serif, system-ui, sans-serif' },
+  { id: "charter", label: "Charter", body: '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif', display: '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif' },
+  { id: "megaphone", label: "Megaphone", body: "Inter, ui-sans-serif, system-ui, sans-serif", display: "Sora, ui-sans-serif, system-ui, sans-serif" },
+];
+const fontPack = (id: string) => FONT_PACKS.find((f) => f.id === id) ?? FONT_PACKS[0];
+
+// Curated "starter standards" — each sets colour + font + density at once.
+const PRESETS: { name: string; theme: string; font: string; density: Density; note: string }[] = [
+  { name: "Clean & calm", theme: "slate", font: "signal", density: "spacious", note: "content, marketing, calm apps" },
+  { name: "Dashboard", theme: "slate", font: "signal", density: "compact", note: "data tables, analytics, ops" },
+  { name: "Warm editorial", theme: "terracotta", font: "broadsheet", density: "spacious", note: "blogs, docs, human-AI" },
+  { name: "Bold startup", theme: "iris", font: "megaphone", density: "default", note: "landing pages, launches" },
+  { name: "Friendly", theme: "forest", font: "marshmallow", density: "default", note: "consumer, education, family" },
+  { name: "Corporate", theme: "ocean", font: "charter", density: "default", note: "fintech, enterprise, gov" },
+];
+
+// CSS custom properties for a font pack — spread into a wrapper's style so the subtree re-skins.
+const fontVars = (id: string): React.CSSProperties => {
+  const f = fontPack(id);
+  return { ["--font-sans" as any]: f.body, ["--font-display" as any]: f.display };
+};
+
 export function DesignStandardDemo() {
   return (
     <ToastProvider>
@@ -143,38 +170,89 @@ type Density = (typeof DENSITIES)[number];
 
 function DemoInner() {
   const [theme, setTheme] = useState<string>("slate");
+  const [font, setFont] = useState<string>("signal");
   const [dark, setDark] = useState(false);
   const [density, setDensity] = useState<Density>("default");
   const [sw, setSw] = useState(true);
   const [ck, setCk] = useState(true);
   const [radio, setRadio] = useState("daily");
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
   const chip = (active: boolean) =>
-    `rounded-md border px-2.5 py-1 text-xs ${active ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-600"}`;
+    `rounded-md border px-2.5 py-1 text-xs transition ${active ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`;
   const field = (n: React.ReactNode) => <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14 }}>{n}</span>;
+
+  // The selection a colleague takes away — a ready-to-paste instruction for Claude.
+  const themeLabel = theme[0].toUpperCase() + theme.slice(1);
+  const densityWord = density === "default" ? "comfortable (default)" : density;
+  const standardPrompt =
+    `Apply our base design standard with the ${themeLabel} colour group, the ${fontPack(font).label} font pack, and ${densityWord} density.`;
+  const activePreset = PRESETS.find((p) => p.theme === theme && p.font === font && p.density === density);
+
+  function applyPreset(p: (typeof PRESETS)[number]) { setTheme(p.theme); setFont(p.font); setDensity(p.density); }
+  async function copyStandard() {
+    try { await navigator.clipboard.writeText(standardPrompt); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch {}
+  }
 
   return (
     <div>
       <InstallPanel />
 
-      <div className="mb-4 flex flex-wrap items-center gap-1.5">
-        <span className="mr-1 text-xs text-slate-400">Colour</span>
-        {THEMES.map(([id, hex]) => (
-          <button key={id} onClick={() => setTheme(id)} className={chip(theme === id)}>
-            <span style={{ display: "inline-block", width: 9, height: 9, borderRadius: 999, background: hex, marginRight: 5, verticalAlign: "middle" }} />
-            {id}
+      {/* Configurator — colleagues pick their standard, then copy the instruction to apply it. */}
+      <div className="mb-5 rounded-xl border border-slate-200 bg-white p-3.5">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="inline-flex h-5 items-center rounded-full bg-slate-900 px-2 text-[10px] font-semibold uppercase tracking-wide text-white">Configure</span>
+          <h3 className="text-sm font-semibold text-slate-900">Build your standard</h3>
+          <span className="text-xs text-slate-400">— preview below updates live; structure never changes, only colour, type, radius &amp; spacing.</span>
+        </div>
+
+        <div className="space-y-2.5">
+          {/* Starter presets — set colour + font + density at once */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 w-14 shrink-0 text-xs text-slate-400">Presets</span>
+            {PRESETS.map((p) => (
+              <button key={p.name} onClick={() => applyPreset(p)} className={chip(activePreset?.name === p.name)} title={p.note}>{p.name}</button>
+            ))}
+          </div>
+          {/* Colour group */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 w-14 shrink-0 text-xs text-slate-400">Colour</span>
+            {THEMES.map(([id, hex]) => (
+              <button key={id} onClick={() => setTheme(id)} className={chip(theme === id)}>
+                <span style={{ display: "inline-block", width: 9, height: 9, borderRadius: 999, background: hex, marginRight: 5, verticalAlign: "middle" }} />
+                {id}
+              </button>
+            ))}
+          </div>
+          {/* Font pack */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 w-14 shrink-0 text-xs text-slate-400">Font</span>
+            {FONT_PACKS.map((f) => (
+              <button key={f.id} onClick={() => setFont(f.id)} className={chip(font === f.id)} style={{ fontFamily: f.display }}>{f.label}</button>
+            ))}
+          </div>
+          {/* Density + mode */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 w-14 shrink-0 text-xs text-slate-400">Density</span>
+            {DENSITIES.map((d) => (
+              <button key={d} onClick={() => setDensity(d)} className={chip(density === d)}>{d}</button>
+            ))}
+            <span className="mx-2 h-4 w-px bg-slate-200" />
+            <button onClick={() => setDark(false)} className={chip(!dark)}>Light</button>
+            <button onClick={() => setDark(true)} className={chip(dark)}>Dark</button>
+          </div>
+        </div>
+
+        {/* Takeaway — the exact prompt to apply this standard */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+          <button onClick={copyStandard} className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700">
+            {copied ? "Copied ✓" : "Copy this standard"}
           </button>
-        ))}
-        <span className="mx-1" />
-        <button onClick={() => setDark(false)} className={chip(!dark)}>Light</button>
-        <button onClick={() => setDark(true)} className={chip(dark)}>Dark</button>
-        <span className="mx-1" />
-        <span className="mr-1 text-xs text-slate-400">Density</span>
-        {DENSITIES.map((d) => (
-          <button key={d} onClick={() => setDensity(d)} className={chip(density === d)}>{d}</button>
-        ))}
+          <code className="min-w-0 flex-1 truncate rounded bg-slate-50 px-2 py-1 text-[11px] text-slate-600">{standardPrompt}</code>
+        </div>
+        <p className="mt-1.5 text-[11px] text-slate-400">Paste that into Claude on your project — it wires this exact look in. (Dark mode is a user preference, not part of the saved standard.)</p>
       </div>
 
       <div
@@ -182,6 +260,7 @@ function DemoInner() {
         data-density={density === "default" ? undefined : density}
         className={dark ? "dark" : ""}
         style={{
+          ...fontVars(font),
           background: "var(--color-background)", color: "var(--color-foreground)",
           fontFamily: "var(--font-sans)", border: "1px solid var(--color-border)", borderRadius: 14, padding: "var(--inset-card)",
         }}
@@ -305,12 +384,12 @@ function DemoInner() {
         </DialogFooter>
       </Dialog>
 
-      <ExtendedDemo theme={theme} dark={dark} density={density} />
+      <ExtendedDemo theme={theme} dark={dark} density={density} font={font} />
     </div>
   );
 }
 
-function ExtendedDemo({ theme, dark, density }: { theme: string; dark: boolean; density: Density }) {
+function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boolean; density: Density; font: string }) {
   const [slider, setSlider] = React.useState(62);
   const [page, setPage] = React.useState(3);
   const [date, setDate] = React.useState<string | null>("2026-06-15");
@@ -330,8 +409,9 @@ function ExtendedDemo({ theme, dark, density }: { theme: string; dark: boolean; 
 
   return (
     <div data-theme={theme} data-density={density === "default" ? undefined : density} className={dark ? "dark" : ""} style={{
+      ...fontVars(font),
       marginTop: 16, background: "var(--color-background)", color: "var(--color-foreground)",
-      fontFamily: "var(--font-sans)", border: "1px solid var(--color-border)", borderRadius: 14, padding: "20px 22px",
+      fontFamily: "var(--font-sans)", border: "1px solid var(--color-border)", borderRadius: 14, padding: "var(--inset-card)",
     }}>
       <p style={lbl}>Extended set · slider, progress, avatars, alerts, code, kbd</p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 18, marginBottom: 16 }}>
