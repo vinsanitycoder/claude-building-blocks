@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "../../plugins/building-blocks/skills/design-standard/files/globals.css";
 import "../../plugins/building-blocks/skills/design-standard/files/themes.css";
 import {
@@ -9,6 +9,12 @@ import {
   Dialog, DialogTitle, DialogDescription, DialogFooter, Select,
   DropdownMenu, DropdownMenuItem, DropdownMenuSeparator,
   ToastProvider, useToast,
+  Slider, Progress, Avatar, AvatarGroup, Alert, Kbd, CodeBlock,
+  Stack, Breadcrumbs, Pagination,
+  LineChart, BarChart, AreaChart, Sparkline,
+  Calendar,
+  Drawer, DrawerHeader, DrawerBody, DrawerFooter,
+  Accordion, AccordionItem, Stepper, CommandPalette,
 } from "../../plugins/building-blocks/skills/design-standard/files/components";
 
 const THEMES = [
@@ -181,6 +187,191 @@ function DemoInner() {
           <Button variant="destructive" onClick={() => { setOpen(false); toast({ title: "Project deleted", variant: "destructive" }); }}>Delete</Button>
         </DialogFooter>
       </Dialog>
+
+      <ExtendedDemo theme={theme} dark={dark} />
+    </div>
+  );
+}
+
+function ExtendedDemo({ theme, dark }: { theme: string; dark: boolean }) {
+  const [slider, setSlider] = React.useState(62);
+  const [page, setPage] = React.useState(3);
+  const [date, setDate] = React.useState<string | null>("2026-06-15");
+  const [range, setRange] = React.useState<{ start: string | null; end: string | null }>({ start: "2026-06-16", end: "2026-06-20" });
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [cmdOpen, setCmdOpen] = React.useState(false);
+  const [accordionOpen, setAccordionOpen] = React.useState<string[]>(["spacing"]);
+  const { toast } = useToast();
+
+  React.useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setCmdOpen((o) => !o); }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  return (
+    <div data-theme={theme} className={dark ? "dark" : ""} style={{
+      marginTop: 16, background: "var(--color-background)", color: "var(--color-foreground)",
+      fontFamily: "var(--font-sans)", border: "1px solid var(--color-border)", borderRadius: 14, padding: "20px 22px",
+    }}>
+      <p style={lbl}>Extended set · slider, progress, avatars, alerts, code, kbd</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 18, marginBottom: 16 }}>
+        <div>
+          <Label>Budget: ${(slider * 100).toLocaleString()}</Label>
+          <Slider value={slider} onValueChange={setSlider} showValueTooltip formatValue={(n) => `$${(n * 100).toLocaleString()}`} />
+        </div>
+        <div>
+          <Label>Upload progress</Label>
+          <Progress value={70} />
+          <HelpText>70% — 14 of 20 files</HelpText>
+        </div>
+        <div>
+          <Label>Team</Label>
+          <AvatarGroup max={3}>
+            <Avatar initials="AT" status="online" />
+            <Avatar initials="MR" />
+            <Avatar initials="JL" />
+            <Avatar initials="SK" />
+            <Avatar initials="VR" />
+          </AvatarGroup>
+        </div>
+      </div>
+
+      <Stack gap={2} style={{ marginBottom: 16 }}>
+        <Alert variant="info" title="Heads up.">This is an informational callout that stays in the page (not transient).</Alert>
+        <Alert variant="success" title="Saved." onDismiss={() => toast({ title: "Dismissed" })}>Your changes were published successfully.</Alert>
+        <Alert variant="warning" title="Almost full">Storage at 92%. Consider archiving older items.</Alert>
+        <Alert variant="destructive" title="Couldn't connect.">Check your network and try again.</Alert>
+      </Stack>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginBottom: 16 }}>
+        <div>
+          <p style={lbl}>Kbd</p>
+          <div style={{ fontSize: 14 }}>
+            Open with <Kbd keys={["⌘", "K"]} /> · Save with <Kbd keys={["⌘", "S"]} /> · Quit <Kbd>Esc</Kbd>
+          </div>
+          <Button variant="outline" size="sm" style={{ marginTop: 10 }} onClick={() => setCmdOpen(true)}>Open ⌘K</Button>
+        </div>
+        <div>
+          <p style={lbl}>Code block</p>
+          <CodeBlock filename="globals.css" copyable code={`:root {\n  --radius: 0.625rem;\n  --color-primary: #1c2024;\n}`} >
+{`:root {
+  --radius: 0.625rem;
+  --color-primary: #1c2024;
+}`}
+          </CodeBlock>
+        </div>
+      </div>
+
+      <Separator />
+
+      <p style={lbl}>Navigation · breadcrumbs · pagination · stepper</p>
+      <Stack gap={4} style={{ marginBottom: 16 }}>
+        <Breadcrumbs items={[
+          { label: "Home", href: "#" },
+          { label: "Projects", href: "#" },
+          { label: "Apollo" },
+        ]} />
+        <Pagination page={page} totalPages={10} onPageChange={setPage} />
+        <Stepper current={1} steps={[
+          { label: "Account", description: "Email + password" },
+          { label: "Details", description: "Tell us about you" },
+          { label: "Preferences" },
+          { label: "Done" },
+        ]} />
+      </Stack>
+
+      <Separator />
+
+      <p style={lbl}>Calendar · single date</p>
+      <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 16 }}>
+        <Calendar value={date} onChange={setDate} />
+        <Calendar range={range} onRangeChange={setRange} />
+      </div>
+
+      <Separator />
+
+      <p style={lbl}>Charts · Okabe-Ito palette (colourblind-safe)</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 18, marginBottom: 16 }}>
+        <LineChart
+          width={360} height={200}
+          labels={["Mon","Tue","Wed","Thu","Fri"]}
+          series={[
+            { name: "Revenue", data: [120, 180, 150, 220, 260] },
+            { name: "Cost",    data: [90,  110, 130, 150, 170] },
+          ]}
+        />
+        <BarChart
+          width={360} height={200}
+          labels={["Q1","Q2","Q3","Q4"]}
+          series={[
+            { name: "2025", data: [4, 8, 6, 11] },
+            { name: "2026", data: [6, 10, 9, 14] },
+          ]}
+        />
+        <AreaChart
+          width={360} height={200}
+          labels={["Jan","Feb","Mar","Apr","May","Jun"]}
+          series={[{ name: "Users", data: [100, 140, 180, 170, 240, 290] }]}
+        />
+        <Stack gap={2}>
+          <span style={{ fontSize: 14, color: "var(--color-muted-foreground)" }}>Inline sparklines:</span>
+          <span style={{ fontSize: 14 }}>Revenue 42.1k <Sparkline data={[3,5,4,7,8,6,9,11]} /></span>
+          <span style={{ fontSize: 14 }}>Users 1,290 <Sparkline data={[5,4,6,5,8,7,9,10]} color="var(--chart-2)" /></span>
+          <span style={{ fontSize: 14 }}>Errors 0.3% <Sparkline data={[9,8,6,7,4,3,2,1]} color="var(--chart-3)" /></span>
+        </Stack>
+      </div>
+
+      <Separator />
+
+      <p style={lbl}>Polish · drawer · accordion · command palette</p>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+        <Button variant="outline" onClick={() => setDrawerOpen(true)}>Open drawer</Button>
+        <Button variant="outline" onClick={() => setCmdOpen(true)}>Command palette (⌘K)</Button>
+      </div>
+
+      <Accordion open={accordionOpen} onOpenChange={setAccordionOpen} multiple>
+        <AccordionItem id="spacing" title="What's frozen in the base?">
+          Spacing, type scale, button sizes, motion, dark-mode mechanism, and component anatomy — all fixed.
+          A colour group or font pack only swaps colour, typeface, and radius.
+        </AccordionItem>
+        <AccordionItem id="brand" title="What can a brand override?">
+          Only colour tokens, the font pack, the logo asset, and optionally the single <code>--radius</code> base value.
+        </AccordionItem>
+        <AccordionItem id="myths" title="What's been refuted?">
+          There's no canonical "Anthropic 4px token scale", no serif body font, no fixed display sizes.
+          Those were community fabrications. See the spec's Sources section.
+        </AccordionItem>
+      </Accordion>
+
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} side="right" size="md">
+        <DrawerHeader>Filter results</DrawerHeader>
+        <DrawerBody>
+          <Stack gap={4}>
+            <div><Label>Status</Label><Input placeholder="Any" /></div>
+            <div><Label>Assignee</Label><Input placeholder="Anyone" /></div>
+            <div><Label>Tag</Label><Input placeholder="design, docs…" /></div>
+          </Stack>
+        </DrawerBody>
+        <DrawerFooter>
+          <Button variant="ghost" onClick={() => setDrawerOpen(false)}>Clear</Button>
+          <Button onClick={() => setDrawerOpen(false)}>Apply</Button>
+        </DrawerFooter>
+      </Drawer>
+
+      <CommandPalette
+        open={cmdOpen}
+        onClose={() => setCmdOpen(false)}
+        items={[
+          { id: "n",  group: "Navigation", label: "Go to dashboard", shortcut: "G D", onSelect: () => toast({ title: "Dashboard" }) },
+          { id: "p",  group: "Navigation", label: "Go to projects",   shortcut: "G P", onSelect: () => toast({ title: "Projects" }) },
+          { id: "s",  group: "Settings",   label: "Open settings",     shortcut: "⌘,",  onSelect: () => toast({ title: "Settings" }) },
+          { id: "t",  group: "Settings",   label: "Toggle theme",                     onSelect: () => toast({ title: "Theme toggled" }) },
+          { id: "h",  group: "Help",       label: "Read the docs",                    onSelect: () => toast({ title: "Docs" }) },
+        ]}
+      />
     </div>
   );
 }

@@ -35,3 +35,43 @@ export { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "./Dropdow
 export type { DropdownMenuProps, DropdownMenuItemProps } from "./DropdownMenu";
 export { ToastProvider, useToast } from "./Toast";
 export type { ToastOptions, ToastVariant } from "./Toast";
+
+// — data display & feedback —
+export { Slider } from "./Slider";
+export type { SliderProps } from "./Slider";
+export { Progress } from "./Progress";
+export type { ProgressProps } from "./Progress";
+export { Avatar, AvatarGroup } from "./Avatar";
+export type { AvatarProps, AvatarGroupProps, AvatarSize } from "./Avatar";
+export { Alert } from "./Alert";
+export type { AlertProps, AlertVariant } from "./Alert";
+export { Kbd } from "./Kbd";
+export type { KbdProps } from "./Kbd";
+export { CodeBlock } from "./Code";
+export type { CodeBlockProps } from "./Code";
+
+// — layout & shell —
+export { Stack, Container, Section } from "./Layout";
+export type { StackProps, ContainerProps, SectionProps } from "./Layout";
+export { TopBar, Sidebar, SidebarItem, AppShell, ShellMain } from "./Shell";
+export type { TopBarProps, SidebarProps, SidebarItemProps } from "./Shell";
+export { Breadcrumbs } from "./Breadcrumbs";
+export type { BreadcrumbsProps, BreadcrumbItem } from "./Breadcrumbs";
+export { Pagination } from "./Pagination";
+export type { PaginationProps } from "./Pagination";
+
+// — charts & date —
+export { LineChart, BarChart, AreaChart, Sparkline } from "./Chart";
+export type { BaseChartProps, Series, SparklineProps } from "./Chart";
+export { Calendar } from "./Calendar";
+export type { CalendarProps } from "./Calendar";
+
+// — polish (overlay, disclosure, multi-step, cmdk) —
+export { Drawer, DrawerHeader, DrawerBody, DrawerFooter } from "./Drawer";
+export type { DrawerProps } from "./Drawer";
+export { Accordion, AccordionItem } from "./Accordion";
+export type { AccordionProps, AccordionItemProps } from "./Accordion";
+export { Stepper } from "./Stepper";
+export type { StepperProps, StepperStep, StepStatus } from "./Stepper";
+export { CommandPalette } from "./CommandPalette";
+export type { CommandPaletteProps, CommandItem } from "./CommandPalette";
