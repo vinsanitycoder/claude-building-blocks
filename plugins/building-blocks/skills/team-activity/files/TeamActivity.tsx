@@ -14,8 +14,9 @@
  */
 import {
   type TeamUser, type DaySegment, type MonthCell, type ActivityEvent, type PollHealth,
-  effectiveStatus, DOT, SEG, LABEL, relTime, fmtHour, fmtDur, heatClass,
+  effectiveStatus, DOT, SEG, LABEL, relTime, fmtHour, fmtDur, heatStyle,
 } from "./presence";
+import { Select } from "../../design-standard/files/components/Select";
 
 export function TeamActivity({
   users,
@@ -91,21 +92,21 @@ export function TeamActivity({
                 className="flex flex-wrap items-center gap-3 px-5 py-3"
                 style={ix === 0 ? undefined : { borderTop: "1px solid var(--color-border)" }}
               >
-                <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOT[st]}`} />
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={DOT[st]} />
                 <span className="min-w-0 flex-1 text-sm font-medium text-[var(--color-foreground)]">{u.name}</span>
                 <span className="text-sm text-[var(--color-muted-foreground)]">{LABEL[st]}</span>
                 <span className="w-20 text-right text-xs text-[var(--color-muted-foreground)]">{relTime(u.lastSeen, now)}</span>
                 {u.id === meId || !onRoleChange ? (
                   <span className="w-28 text-right text-xs text-[var(--color-muted-foreground)]">{u.role}{u.id === meId ? " (you)" : ""}</span>
                 ) : (
-                  <select
-                    defaultValue={u.role}
-                    onChange={(e) => onRoleChange(u.id, e.target.value)}
-                    className="ds-input ds-btn--sm"
-                    style={{ width: "7rem", height: "1.75rem", paddingInline: "0.5rem" }}
-                  >
-                    {roles.map((r) => <option key={r} value={r}>{r}</option>)}
-                  </select>
+                  <div style={{ width: "7rem" }}>
+                    <Select
+                      defaultValue={u.role}
+                      onValueChange={(v) => onRoleChange(u.id, v)}
+                      options={roles.map((r) => ({ value: r, label: r }))}
+                      aria-label="Role"
+                    />
+                  </div>
                 )}
               </li>
             );
@@ -119,9 +120,9 @@ export function TeamActivity({
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-[var(--color-foreground)]">Activity today · 24 hours</h2>
             <div className="flex items-center gap-3 text-[11px] text-[var(--color-muted-foreground)]">
-              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm" style={{ background: "var(--color-success)" }} />Active</span>
-              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm" style={{ background: "var(--color-warning)" }} />Idle</span>
-              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm" style={{ background: "var(--color-muted-foreground)" }} />Not in focus</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm" style={SEG.active} />Active</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm" style={SEG.idle} />Idle</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm" style={SEG.hidden} />Not in focus</span>
             </div>
           </div>
           <div className="mt-4 space-y-2">
@@ -132,8 +133,9 @@ export function TeamActivity({
                   {segments.filter((s) => s.userId === u.id).map((s, i) => (
                     <span
                       key={i}
-                      className={`absolute inset-y-0 ${SEG[s.status]}`}
+                      className="absolute inset-y-0"
                       style={{
+                        ...SEG[s.status],
                         left: `${((s.from - today.startMs) / (today.endMs - today.startMs)) * 100}%`,
                         width: `${((s.to - s.from) / (today.endMs - today.startMs)) * 100}%`,
                       }}
@@ -170,7 +172,7 @@ export function TeamActivity({
                   {Array.from({ length: month.daysInMonth }, (_, i) => i + 1).map((d) => {
                     const dayStr = `${month.prefix}-${String(d).padStart(2, "0")}`;
                     const sec = monthMap.get(`${u.id}|${dayStr}`) ?? 0;
-                    return <span key={d} title={`${dayStr}: ${fmtDur(sec)} active`} className={`h-4 w-4 shrink-0 rounded-sm ${heatClass(sec)}`} />;
+                    return <span key={d} title={`${dayStr}: ${fmtDur(sec)} active`} className="h-4 w-4 shrink-0 rounded-sm" style={heatStyle(sec)} />;
                   })}
                 </div>
               ))}
@@ -178,11 +180,11 @@ export function TeamActivity({
           </div>
           <div className="mt-3 flex items-center gap-1.5 text-[11px] text-[var(--color-muted-foreground)]">
             Less
-            <span className="h-3 w-3 rounded-sm" style={{ background: "var(--color-muted)" }} />
-            <span className="h-3 w-3 rounded-sm bg-green-200" />
-            <span className="h-3 w-3 rounded-sm bg-green-300" />
-            <span className="h-3 w-3 rounded-sm bg-green-500" />
-            <span className="h-3 w-3 rounded-sm bg-green-600" />
+            <span className="h-3 w-3 rounded-sm" style={heatStyle(0)} />
+            <span className="h-3 w-3 rounded-sm" style={heatStyle(30 * 60)} />
+            <span className="h-3 w-3 rounded-sm" style={heatStyle(2 * 3600)} />
+            <span className="h-3 w-3 rounded-sm" style={heatStyle(5 * 3600)} />
+            <span className="h-3 w-3 rounded-sm" style={heatStyle(8 * 3600)} />
             More · active hours/day
           </div>
         </div>

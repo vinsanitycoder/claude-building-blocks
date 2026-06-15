@@ -50,6 +50,56 @@ there's nothing to drift.
 - Refuted myths to NOT reintroduce: there is no canonical "Anthropic 4px token scale", no serif body font, no fixed
   display sizes — those were community fabrications (see DESIGN_STANDARD "Sources").
 
+## Consistency audit — run this when adopting the standard in ANY block
+
+When refactoring a component to "use the design standard," do not stop at the obvious. Loose ends in helper modules,
+status-colour utilities, and small inputs are what make a block read as off-brand. Every item below has burned us in a
+real refactor — keep the list short and treat it as a checklist:
+
+1. **No raw `<button>`, `<input>`, `<select>`, `<textarea>` rendering as styled controls.** Replace with the
+   design-standard component (`<Button>`, `<Input>`, `<Select>`, `<Textarea>`) or, if you must stay on the raw element,
+   the matching `.ds-btn--*` / `.ds-input` class. Native `<select>` looks NOTHING like the anchored slide-down Select
+   and is the #1 inconsistency catch.
+2. **No Tailwind palette utilities** (`bg-slate-*`, `bg-gray-*`, `bg-zinc-*`, `bg-stone-*`, `bg-neutral-*`,
+   `bg-green-*`, `bg-rose-*`, `bg-red-*`, `bg-blue-*`, `bg-amber-*`, `text-slate-*`, `text-gray-*`, `border-slate-*`,
+   `border-rose-*`, etc.). Replace with semantic tokens: `bg-[var(--color-card)]`, `text-[var(--color-foreground)]`,
+   `text-[var(--color-muted-foreground)]`, `border-[var(--color-border)]`. Status colours map to
+   `--color-success` / `--color-warning` / `--color-destructive`.
+3. **Audit HELPER modules too**, not just the component file. `bg-green-500` hiding in a `presence.ts` lookup table
+   or a `heatClass()` function is invisible from the JSX but ships the wrong colour. If a helper returns Tailwind
+   class names tied to a palette, convert it to return INLINE STYLE objects with `var(--color-*)` values.
+4. **No literal hex / rgb values in components.** Search the file for `#[0-9a-f]{3,6}` and `rgb(`. Acceptable
+   only inside the design-standard skill's own token files (`globals.css`, `themes.css`). Anywhere else = bug.
+5. **Tints / shades from tokens** (success-tinted card, destructive-tinted error banner): use
+   `color-mix(in srgb, var(--color-success) 10%, var(--color-card))`, not `bg-green-50`. This is how shadcn-style
+   semantic backgrounds work without hard-coding a palette.
+6. **Layout widths.** `.ds-input` and `.ds-select-trigger` are `display:block; width:100%` — designed to live
+   inside a column. Putting two of them in a `flex flex-wrap items-center gap-2` row makes them STACK, not sit
+   side-by-side. Use a `grid` with explicit columns (`grid-template-columns: 1fr 1fr` or `1fr auto`), or wrap each
+   in a flex item with `flex: 1`. Never trust raw flex-wrap with full-width fields.
+7. **Cards = `.ds-card` (or `<Card>`)**, not `rounded-xl border bg-white p-4`. The `.ds-card` class brings the
+   right shadow, padding, and dark-mode background.
+8. **Badges + chips = `.ds-badge--variant`** (or `<Badge>`), not hand-rolled `rounded bg-green-100 px-2 py-0.5
+   text-green-800`. Same for inline alerts (`<Alert>`).
+9. **Internal section dividers** (between list items, card sections): `border-top: 1px solid var(--color-border)`,
+   not `border-slate-100` / `divide-slate-50`. They must travel with dark mode.
+10. **Verify in BOTH light and dark mode after refactoring.** Most palette leaks are invisible in light mode and
+    glaring in dark mode (a `bg-slate-100` looks fine on white but jumps off a dark page).
+
+### Quick search to catch leaks
+After refactoring, ripgrep the touched files for the patterns above:
+
+```bash
+rg -n \
+  -e 'bg-(slate|gray|zinc|stone|neutral|green|rose|red|blue|amber|yellow|emerald|teal)-[0-9]' \
+  -e 'text-(slate|gray|zinc|stone|neutral)-[0-9]' \
+  -e 'border-(slate|gray)-[0-9]' \
+  -e '<select ' \
+  files/
+```
+
+A clean adoption returns ripgrep exit code 1 with no output. Treat any hits as bugs.
+
 ## Preview / iterate
 Run the repo playground (`npm run dev` at the root) → "Design standard" demo — switch colour groups + dark mode and
 hover/press the components to see the tokens and states live.

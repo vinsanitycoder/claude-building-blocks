@@ -53,16 +53,21 @@ export function effectiveStatus(status: string | null, lastSeen: string | null, 
   return "offline";
 }
 
-export const DOT: Record<Status, string> = {
-  active: "bg-green-500",
-  idle: "bg-amber-400",
-  hidden: "bg-slate-400",
-  offline: "bg-slate-300",
+// Status-colour helpers return INLINE STYLE OBJECTS so they read from the
+// design-standard semantic tokens (--color-*) instead of hard-coded Tailwind
+// palette utilities. This is the design-standard rule: components reference
+// semantic tokens, never literal palette classes.
+type StyleObj = { background: string };
+export const DOT: Record<Status, StyleObj> = {
+  active:  { background: "var(--color-success)" },
+  idle:    { background: "var(--color-warning)" },
+  hidden:  { background: "var(--color-muted-foreground)" },
+  offline: { background: "color-mix(in srgb, var(--color-muted-foreground) 55%, transparent)" },
 };
-export const SEG: Record<"active" | "idle" | "hidden", string> = {
-  active: "bg-green-500",
-  idle: "bg-amber-400",
-  hidden: "bg-slate-400",
+export const SEG: Record<"active" | "idle" | "hidden", StyleObj> = {
+  active: { background: "var(--color-success)" },
+  idle:   { background: "var(--color-warning)" },
+  hidden: { background: "var(--color-muted-foreground)" },
 };
 export const LABEL: Record<Status, string> = {
   active: "Active",
@@ -83,11 +88,14 @@ export function relTime(iso: string | null, now = Date.now()): string {
 export const fmtHour = (h: number) => (h === 0 || h === 24 ? "12am" : h < 12 ? `${h}am` : h === 12 ? "12pm" : `${h - 12}pm`);
 export const fmtDur = (sec: number) => `${Math.floor(sec / 3600)}h ${Math.round((sec % 3600) / 60)}m`;
 
-export function heatClass(sec: number): string {
+/** Heatmap intensity — returns an INLINE STYLE so the swatch tracks the
+ *  --color-success token (and the page's dark/light mode), not literal greens. */
+export function heatStyle(sec: number): { background: string } {
   const h = sec / 3600;
-  if (h <= 0) return "bg-slate-100";
-  if (h < 1) return "bg-green-200";
-  if (h < 3) return "bg-green-300";
-  if (h < 6) return "bg-green-500";
-  return "bg-green-600";
+  if (h <= 0) return { background: "var(--color-muted)" };
+  // Tint card with progressively more of the success colour for each band.
+  const pct = h < 1 ? 18 : h < 3 ? 38 : h < 6 ? 70 : 100;
+  return pct === 100
+    ? { background: "var(--color-success)" }
+    : { background: `color-mix(in srgb, var(--color-success) ${pct}%, var(--color-card))` };
 }

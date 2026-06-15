@@ -14,6 +14,9 @@
  *  - Switching provider resets the model to that provider's default.
  */
 import { useState } from "react";
+import { Select } from "../../design-standard/files/components/Select";
+import { Input } from "../../design-standard/files/components/Input";
+import { Button } from "../../design-standard/files/components/Button";
 
 export type AiProvider = "anthropic" | "openai" | "gemini";
 
@@ -50,8 +53,6 @@ const PROVIDERS: { id: AiProvider; label: string }[] = [
 ];
 
 const OTHER = "__other__";
-// Uses the design-standard input affordance via .ds-input.
-const select = "ds-input";
 
 export function AiModelSettings({
   defaultProvider = "anthropic",
@@ -93,48 +94,60 @@ export function AiModelSettings({
     }
   }
 
+  // Grid layout — each form control gets a column, so Provider and Model sit
+  // cleanly side-by-side instead of stacking under .ds-input's width:100%.
+  // "Other" expands into the row when active.
+  const modelOptions = [
+    ...AI_MODELS[provider].map((m) => ({ value: m.id, label: m.label })),
+    { value: OTHER, label: "Other (enter model id)…" },
+  ];
+
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <select value={provider} onChange={(e) => onProviderChange(e.target.value as AiProvider)} className={select}>
-          {PROVIDERS.map((p) => (
-            <option key={p.id} value={p.id}>{p.label}</option>
-          ))}
-        </select>
+      <div
+        className="grid gap-2"
+        style={{ gridTemplateColumns: pick === OTHER ? "1fr 1fr 1fr" : "1fr 1fr" }}
+      >
+        <Select
+          value={provider}
+          onValueChange={(v) => onProviderChange(v as AiProvider)}
+          options={PROVIDERS.map((p) => ({ value: p.id, label: p.label }))}
+          aria-label="Provider"
+        />
 
-        <select value={pick} onChange={(e) => setPick(e.target.value)} className={select}>
-          {AI_MODELS[provider].map((m) => (
-            <option key={m.id} value={m.id}>{m.label}</option>
-          ))}
-          <option value={OTHER}>Other (enter model id)…</option>
-        </select>
+        <Select
+          value={pick}
+          onValueChange={setPick}
+          options={modelOptions}
+          aria-label="Model"
+        />
 
         {pick === OTHER ? (
-          <input
+          <Input
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
             placeholder="e.g. claude-opus-4-8"
-            className="ds-input flex-1"
+            aria-label="Custom model id"
           />
         ) : null}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <input
+      <div className="grid gap-2" style={{ gridTemplateColumns: "1fr auto" }}>
+        <Input
           type="password"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           placeholder={hasExistingKey ? "•••• saved — leave blank to keep, or paste a new key" : "Paste API key (stored encrypted)"}
-          className="ds-input flex-1"
           autoComplete="off"
+          aria-label="API key"
         />
-        <button onClick={save} disabled={saving || (!model)} className="ds-btn ds-btn--primary">
-          {saving ? "Saving…" : "Save"}
-        </button>
+        <Button onClick={save} disabled={saving || !model} loading={saving}>
+          {saving ? "Saving" : "Save"}
+        </Button>
       </div>
 
-      {savedMsg ? <p className="text-xs text-[var(--color-success)]">{savedMsg}</p> : null}
-      <p className="text-xs text-[var(--color-muted-foreground)]">
+      {savedMsg ? <p className="text-xs" style={{ color: "var(--color-success)" }}>{savedMsg}</p> : null}
+      <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
         The key is sent to your server, encrypted at rest, and never shown again. Leaving it blank keeps the existing key.
       </p>
     </div>
