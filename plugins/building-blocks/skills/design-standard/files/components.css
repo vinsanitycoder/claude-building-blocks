@@ -91,12 +91,19 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-separator--horizontal { height: 1px; width: 100%; margin: var(--space-4) 0; }
 .ds-separator--vertical { width: 1px; align-self: stretch; margin: 0 var(--space-4); }
 
-/* ===== Spinner ===== */
+/* ===== Spinner =====
+   Standalone: neutral track + brand-colour leading arc.
+   Inside a button: tracks the button's text colour so it stays high-contrast
+   on every variant + mode (white spinner on dark primary, dark spinner on light primary, etc). */
 .ds-spinner {
   display: inline-block; width: 1.25rem; height: 1.25rem;
   border: 2px solid color-mix(in srgb, var(--color-foreground) 18%, transparent);
   border-top-color: var(--color-primary); border-radius: 50%;
   animation: ds-spin .7s linear infinite;
+}
+.ds-btn .ds-spinner {
+  border-color: color-mix(in srgb, currentColor 28%, transparent);
+  border-top-color: currentColor;
 }
 @keyframes ds-spin { to { transform: rotate(360deg); } }
 
@@ -255,9 +262,14 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-slider__input:active::-moz-range-thumb { box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-primary) 24%, transparent); cursor: grabbing; }
 .ds-slider__input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-ring) 38%, transparent); }
 .ds-slider--disabled .ds-slider__input { opacity: .5; cursor: not-allowed; }
-.ds-slider__tooltip { position: absolute; top: -1.75rem; transform: translateX(-50%);
+/* tooltip: shown only on hover/drag/focus (per spec); fades + lifts on reveal. */
+.ds-slider__tooltip { position: absolute; top: -1.75rem; transform: translate(-50%, 4px);
   background: var(--color-popover); color: var(--color-popover-foreground); padding: 2px var(--space-2);
-  border-radius: calc(var(--radius) - 4px); font-size: var(--text-xs); box-shadow: var(--shadow-md); pointer-events: none; }
+  border-radius: calc(var(--radius) - 4px); font-size: var(--text-xs); box-shadow: var(--shadow-md);
+  pointer-events: none; opacity: 0; transition: opacity var(--duration-fast), transform var(--duration-fast); }
+@media (hover: hover) { .ds-slider:hover .ds-slider__tooltip { opacity: 1; transform: translate(-50%, 0); } }
+.ds-slider:focus-within .ds-slider__tooltip,
+.ds-slider:active .ds-slider__tooltip { opacity: 1; transform: translate(-50%, 0); }
 
 /* ===== Progress ===== */
 .ds-progress { position: relative; width: 100%; height: 8px; background: var(--color-muted);
@@ -466,8 +478,8 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-stepper__label { font-size: var(--text-sm); font-weight: 500; color: var(--color-foreground); }
 .ds-stepper__step--upcoming .ds-stepper__label { color: var(--color-muted-foreground); }
 .ds-stepper__desc { font-size: var(--text-xs); color: var(--color-muted-foreground); }
-.ds-stepper__connector { position: absolute; top: .875rem; left: 1.75rem; right: -8px; height: 1px; background: var(--color-border); z-index: 0; }
-.ds-stepper--vertical .ds-stepper__connector { position: static; width: 1px; height: var(--space-4); margin-left: .875rem; }
+.ds-stepper__connector { position: absolute; top: 1rem; left: 2rem; right: -4px; height: 2px; background: var(--color-border); border-radius: 1px; z-index: 0; }
+.ds-stepper--vertical .ds-stepper__connector { position: static; width: 2px; height: var(--space-4); margin-left: .875rem; }
 .ds-stepper__step--complete .ds-stepper__connector { background: var(--color-primary); }
 
 /* ===== Command palette ===== */

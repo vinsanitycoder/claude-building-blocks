@@ -285,10 +285,16 @@ function ExtendedDemo({ theme, dark }: { theme: string; dark: boolean }) {
 
       <Separator />
 
-      <p style={lbl}>Calendar · single date</p>
+      <p style={lbl}>Calendar · single date &amp; range</p>
       <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 16 }}>
-        <Calendar value={date} onChange={setDate} />
-        <Calendar range={range} onRangeChange={setRange} />
+        <Stack gap={2}>
+          <span style={{ fontSize: 12, color: "var(--color-muted-foreground)" }}>Single date</span>
+          <Calendar value={date} onChange={setDate} />
+        </Stack>
+        <Stack gap={2}>
+          <span style={{ fontSize: 12, color: "var(--color-muted-foreground)" }}>Range</span>
+          <Calendar range={range} onRangeChange={setRange} />
+        </Stack>
       </div>
 
       <Separator />
