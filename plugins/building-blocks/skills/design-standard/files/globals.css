@@ -67,7 +67,9 @@
 .dark {
   --color-background:#111113;        --color-foreground:#edeef0;
   --color-card:#18191b;              --color-card-foreground:#edeef0;
-  --color-popover:#18191b;           --color-popover-foreground:#edeef0;
+  /* popover sits ONE elevation higher than card in dark mode, so drawers/menus/tooltips
+     visibly lift off cards (the standard's dark-mode rule: elevation = lighter surface). */
+  --color-popover:#21222a;           --color-popover-foreground:#edeef0;
   --color-primary:#edeef0;           --color-primary-foreground:#18191b;
   --color-secondary:#212225;         --color-secondary-foreground:#edeef0;
   --color-muted:#212225;             --color-muted-foreground:#b0b4ba;

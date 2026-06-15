@@ -16,7 +16,9 @@ export interface StepperProps extends React.HTMLAttributes<HTMLOListElement> {
   orientation?: "horizontal" | "vertical";
 }
 
-/** Numbered/check stepper for multi-step flows (wizard, onboarding, checkout). */
+/** Numbered/check stepper for multi-step flows (wizard, onboarding, checkout).
+ *  Horizontal: nodes evenly spaced on the top row with connectors BETWEEN them,
+ *  labels stacked under each node. Vertical: nodes stack with connectors between. */
 export function Stepper({ steps, current = 0, orientation = "horizontal", className = "", ...rest }: StepperProps) {
   return (
     <ol
@@ -29,12 +31,14 @@ export function Stepper({ steps, current = 0, orientation = "horizontal", classN
         const last = i === steps.length - 1;
         return (
           <li key={i} className={`ds-stepper__step ds-stepper__step--${status}`} aria-current={status === "current" ? "step" : undefined}>
-            <span className="ds-stepper__node" aria-hidden="true">{status === "complete" ? "✓" : status === "error" ? "!" : i + 1}</span>
+            <div className="ds-stepper__rail">
+              <span className="ds-stepper__node" aria-hidden="true">{status === "complete" ? "✓" : status === "error" ? "!" : i + 1}</span>
+              {!last && <span className="ds-stepper__connector" aria-hidden="true" />}
+            </div>
             <span className="ds-stepper__text">
               <span className="ds-stepper__label">{s.label}</span>
               {s.description && <span className="ds-stepper__desc">{s.description}</span>}
             </span>
-            {!last && <span className="ds-stepper__connector" aria-hidden="true" />}
           </li>
         );
       })}

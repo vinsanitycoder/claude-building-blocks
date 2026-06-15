@@ -397,6 +397,19 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-chart__legend-item { display: inline-flex; align-items: center; gap: 5px; }
 .ds-chart__swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
 .ds-sparkline { display: inline-flex; vertical-align: middle; }
+.ds-chart svg { cursor: crosshair; display: block; }
+.ds-chart__tooltip {
+  position: absolute; pointer-events: none; min-width: 132px;
+  background: var(--color-popover); color: var(--color-popover-foreground);
+  border: 1px solid var(--color-border); border-radius: calc(var(--radius) - 4px);
+  box-shadow: var(--shadow-md); padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs); z-index: 1;
+}
+.ds-chart__tooltip-label { font-weight: 600; margin-bottom: 4px; }
+.ds-chart__tooltip-row { display: flex; align-items: center; gap: 6px; }
+.ds-chart__tooltip-row + .ds-chart__tooltip-row { margin-top: 2px; }
+.ds-chart__tooltip-name { flex: 1; color: var(--color-muted-foreground); }
+.ds-chart__tooltip-value { font-variant-numeric: tabular-nums; font-weight: 500; }
 
 /* ===== Calendar ===== */
 .ds-cal { background: var(--color-card); color: var(--color-card-foreground);
@@ -427,14 +440,20 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-cal__day--range-end   { background: var(--color-primary); color: var(--color-primary-foreground); border-radius: 0 calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0; }
 .ds-cal__day--disabled { color: var(--color-muted-foreground); opacity: .35; cursor: not-allowed; text-decoration: line-through; }
 
-/* ===== Drawer ===== */
+/* ===== Drawer =====
+   Uses --color-popover (elevated surface) instead of --color-card so it lifts off the
+   page in dark mode; a strong leading-edge border draws a clear separation from the
+   page underneath (critical when page bg and drawer bg are both near-black). */
 .ds-drawer-root { position: fixed; inset: 0; z-index: var(--z-drawer); }
-.ds-drawer-scrim { position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: var(--z-drawer-scrim); animation: ds-fade-in 150ms var(--ease-standard); }
-.ds-drawer { position: absolute; background: var(--color-card); color: var(--color-card-foreground);
-  box-shadow: var(--shadow-xl); display: flex; flex-direction: column; }
-.ds-drawer--left   { top: 0; left: 0; bottom: 0; animation: ds-slide-right 200ms var(--ease-decelerate); }
-.ds-drawer--right  { top: 0; right: 0; bottom: 0; animation: ds-slide-left 200ms var(--ease-decelerate); }
-.ds-drawer--bottom { left: 0; right: 0; bottom: 0; animation: ds-slide-up 200ms var(--ease-decelerate); }
+.ds-drawer-scrim { position: absolute; inset: 0; background: rgba(0,0,0,.5); z-index: var(--z-drawer-scrim); animation: ds-fade-in 150ms var(--ease-standard); }
+.ds-drawer { position: absolute; background: var(--color-popover); color: var(--color-popover-foreground);
+  box-shadow: var(--shadow-xl); display: flex; flex-direction: column; z-index: var(--z-drawer); }
+.ds-drawer--left   { top: 0; left: 0; bottom: 0; animation: ds-slide-right 200ms var(--ease-decelerate); border-right: 1px solid var(--color-border); }
+.ds-drawer--right  { top: 0; right: 0; bottom: 0; animation: ds-slide-left 200ms var(--ease-decelerate); border-left: 1px solid var(--color-border); }
+.ds-drawer--bottom { left: 0; right: 0; bottom: 0; animation: ds-slide-up 200ms var(--ease-decelerate); border-top: 1px solid var(--color-border); }
+/* Inputs and buttons INSIDE drawers/popovers need stronger affordance — boost border contrast. */
+.ds-drawer .ds-input { border-color: color-mix(in srgb, var(--color-foreground) 30%, var(--color-input)); background: var(--color-card); }
+.ds-drawer .ds-btn--ghost { border: 1px solid var(--color-border); }
 .ds-drawer--left.ds-drawer--sm,  .ds-drawer--right.ds-drawer--sm  { width: 18rem; }
 .ds-drawer--left.ds-drawer--md,  .ds-drawer--right.ds-drawer--md  { width: 24rem; }
 .ds-drawer--left.ds-drawer--lg,  .ds-drawer--right.ds-drawer--lg  { width: 32rem; }
@@ -463,24 +482,28 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-accordion__chev--open { transform: rotate(180deg); }
 .ds-accordion__panel { padding: 0 var(--space-4) var(--space-4); font-size: var(--text-sm); color: var(--color-muted-foreground); }
 
-/* ===== Stepper ===== */
-.ds-stepper { list-style: none; padding: 0; margin: 0; display: flex; gap: 0; }
+/* ===== Stepper =====
+   Horizontal: each step is a column [rail (node + connector) on top, label/desc below].
+   The connector lives on the rail row only, so it never crosses the label text. */
+.ds-stepper { list-style: none; padding: 0; margin: 0; display: flex; gap: var(--space-2); }
 .ds-stepper--vertical { flex-direction: column; }
-.ds-stepper__step { display: flex; align-items: flex-start; gap: var(--space-2); flex: 1; min-width: 0; position: relative; }
-.ds-stepper--vertical .ds-stepper__step { flex: none; }
+.ds-stepper__step { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); flex: 1; min-width: 0; }
+.ds-stepper--vertical .ds-stepper__step { flex: none; flex-direction: row; }
+.ds-stepper__rail { display: flex; align-items: center; align-self: stretch; gap: var(--space-2); }
+.ds-stepper--vertical .ds-stepper__rail { flex-direction: column; align-self: auto; }
 .ds-stepper__node { width: 1.75rem; height: 1.75rem; flex: none; display: inline-flex; align-items: center; justify-content: center;
   border-radius: 50%; font-size: var(--text-sm); font-weight: 600;
   background: var(--color-muted); color: var(--color-muted-foreground); border: 1px solid var(--color-border); }
 .ds-stepper__step--complete .ds-stepper__node { background: var(--color-primary); color: var(--color-primary-foreground); border-color: var(--color-primary); }
 .ds-stepper__step--current .ds-stepper__node  { background: var(--color-card); color: var(--color-primary); border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent); }
 .ds-stepper__step--error .ds-stepper__node    { background: var(--color-destructive); color: var(--color-destructive-foreground); border-color: var(--color-destructive); }
-.ds-stepper__text { display: flex; flex-direction: column; gap: 2px; padding-top: 2px; }
+.ds-stepper__connector { flex: 1; height: 2px; background: var(--color-border); border-radius: 1px; }
+.ds-stepper--vertical .ds-stepper__connector { flex: none; width: 2px; height: var(--space-6); margin: 4px 0; }
+.ds-stepper__step--complete .ds-stepper__connector { background: var(--color-primary); }
+.ds-stepper__text { display: flex; flex-direction: column; gap: 2px; padding-left: 2px; }
 .ds-stepper__label { font-size: var(--text-sm); font-weight: 500; color: var(--color-foreground); }
 .ds-stepper__step--upcoming .ds-stepper__label { color: var(--color-muted-foreground); }
 .ds-stepper__desc { font-size: var(--text-xs); color: var(--color-muted-foreground); }
-.ds-stepper__connector { position: absolute; top: 1rem; left: 2rem; right: -4px; height: 2px; background: var(--color-border); border-radius: 1px; z-index: 0; }
-.ds-stepper--vertical .ds-stepper__connector { position: static; width: 2px; height: var(--space-4); margin-left: .875rem; }
-.ds-stepper__step--complete .ds-stepper__connector { background: var(--color-primary); }
 
 /* ===== Command palette ===== */
 .ds-cmdk-root { position: fixed; inset: 0; z-index: var(--z-modal); display: flex; align-items: flex-start; justify-content: center; padding-top: 12vh; }

@@ -17,7 +17,7 @@
 }
 .dark[data-theme="slate"]{
   --color-background:#111113;--color-foreground:#edeef0;--color-card:#18191b;--color-card-foreground:#edeef0;
-  --color-popover:#18191b;--color-popover-foreground:#edeef0;--color-primary:#edeef0;--color-primary-foreground:#18191b;
+  --color-popover:#21222a;--color-popover-foreground:#edeef0;--color-primary:#edeef0;--color-primary-foreground:#18191b;
   --color-secondary:#212225;--color-secondary-foreground:#edeef0;--color-muted:#212225;--color-muted-foreground:#b0b4ba;
   --color-accent:#272a2d;--color-accent-foreground:#edeef0;--color-destructive:#ec5d5e;--color-destructive-foreground:#ffffff;
   --color-border:#363a3f;--color-input:#43484e;--color-ring:#696e77;
@@ -33,7 +33,7 @@
 }
 .dark[data-theme="ocean"]{
   --color-background:#111113;--color-foreground:#edeef0;--color-card:#18191b;--color-card-foreground:#edeef0;
-  --color-popover:#18191b;--color-popover-foreground:#edeef0;--color-primary:#0090ff;--color-primary-foreground:#0d1520;
+  --color-popover:#1c2533;--color-popover-foreground:#edeef0;--color-primary:#0090ff;--color-primary-foreground:#0d1520;
   --color-secondary:#212225;--color-secondary-foreground:#edeef0;--color-muted:#212225;--color-muted-foreground:#b0b4ba;
   --color-accent:#0d2847;--color-accent-foreground:#c2e6ff;--color-destructive:#ec5d5e;--color-destructive-foreground:#ffffff;
   --color-border:#363a3f;--color-input:#43484e;--color-ring:#0090ff;
@@ -49,7 +49,7 @@
 }
 .dark[data-theme="forest"]{
   --color-background:#101211;--color-foreground:#eceeed;--color-card:#171918;--color-card-foreground:#eceeed;
-  --color-popover:#171918;--color-popover-foreground:#eceeed;--color-primary:#30a46c;--color-primary-foreground:#0e1512;
+  --color-popover:#1f2521;--color-popover-foreground:#eceeed;--color-primary:#30a46c;--color-primary-foreground:#0e1512;
   --color-secondary:#202221;--color-secondary-foreground:#eceeed;--color-muted:#202221;--color-muted-foreground:#adb5b2;
   --color-accent:#132d21;--color-accent-foreground:#b1f1cb;--color-destructive:#ec5d5e;--color-destructive-foreground:#ffffff;
   --color-border:#373b39;--color-input:#444947;--color-ring:#30a46c;
@@ -65,7 +65,7 @@
 }
 .dark[data-theme="iris"]{
   --color-background:#121113;--color-foreground:#eeeef0;--color-card:#1a191b;--color-card-foreground:#eeeef0;
-  --color-popover:#1a191b;--color-popover-foreground:#eeeef0;--color-primary:#7d66d9;--color-primary-foreground:#ffffff;
+  --color-popover:#26232c;--color-popover-foreground:#eeeef0;--color-primary:#7d66d9;--color-primary-foreground:#ffffff;
   --color-secondary:#232225;--color-secondary-foreground:#eeeef0;--color-muted:#232225;--color-muted-foreground:#b5b2bc;
   --color-accent:#291f43;--color-accent-foreground:#e2ddfe;--color-destructive:#ec5d5e;--color-destructive-foreground:#ffffff;
   --color-border:#3c393f;--color-input:#49474e;--color-ring:#5b5bd6;
@@ -81,7 +81,7 @@
 }
 .dark[data-theme="terracotta"]{
   --color-background:#111110;--color-foreground:#eeeeec;--color-card:#191918;--color-card-foreground:#eeeeec;
-  --color-popover:#191918;--color-popover-foreground:#eeeeec;--color-primary:#f76b15;--color-primary-foreground:#17120e;
+  --color-popover:#23211e;--color-popover-foreground:#eeeeec;--color-primary:#f76b15;--color-primary-foreground:#17120e;
   --color-secondary:#222221;--color-secondary-foreground:#eeeeec;--color-muted:#222221;--color-muted-foreground:#b5b3ad;
   --color-accent:#331e0b;--color-accent-foreground:#ffe0c2;--color-destructive:#ec5d5e;--color-destructive-foreground:#ffffff;
   --color-border:#3b3a37;--color-input:#494844;--color-ring:#f76b15;
@@ -97,7 +97,7 @@
 }
 .dark[data-theme="ruby"]{
   --color-background:#121113;--color-foreground:#eeeef0;--color-card:#1a191b;--color-card-foreground:#eeeef0;
-  --color-popover:#1a191b;--color-popover-foreground:#eeeef0;--color-primary:#ec5a72;--color-primary-foreground:#191113;
+  --color-popover:#26212a;--color-popover-foreground:#eeeef0;--color-primary:#ec5a72;--color-primary-foreground:#191113;
   --color-secondary:#232225;--color-secondary-foreground:#eeeef0;--color-muted:#232225;--color-muted-foreground:#b5b2bc;
   --color-accent:#3a141e;--color-accent-foreground:#fed2e1;--color-destructive:#ec5d5e;--color-destructive-foreground:#ffffff;
   --color-border:#3c393f;--color-input:#49474e;--color-ring:#e54666;
@@ -113,7 +113,7 @@
 }
 .dark[data-theme="amber"]{
   --color-background:#111110;--color-foreground:#eeeeec;--color-card:#191918;--color-card-foreground:#eeeeec;
-  --color-popover:#191918;--color-popover-foreground:#eeeeec;--color-primary:#ffc53d;--color-primary-foreground:#16120c;
+  --color-popover:#24221c;--color-popover-foreground:#eeeeec;--color-primary:#ffc53d;--color-primary-foreground:#16120c;
   --color-secondary:#222221;--color-secondary-foreground:#eeeeec;--color-muted:#222221;--color-muted-foreground:#b5b3ad;
   --color-accent:#302008;--color-accent-foreground:#ffe7b3;--color-destructive:#ec5d5e;--color-destructive-foreground:#ffffff;
   --color-border:#3b3a37;--color-input:#494844;--color-ring:#ffc53d;
@@ -129,7 +129,7 @@
 }
 .dark[data-theme="mono"]{
   --color-background:#0a0a0a;--color-foreground:#fafafa;--color-card:#161616;--color-card-foreground:#fafafa;
-  --color-popover:#161616;--color-popover-foreground:#fafafa;--color-primary:#fafafa;--color-primary-foreground:#0a0a0a;
+  --color-popover:#202020;--color-popover-foreground:#fafafa;--color-primary:#fafafa;--color-primary-foreground:#0a0a0a;
   --color-secondary:#222222;--color-secondary-foreground:#fafafa;--color-muted:#222222;--color-muted-foreground:#b4b4b4;
   --color-accent:#2a2a2a;--color-accent-foreground:#fafafa;--color-destructive:#ec5d5e;--color-destructive-foreground:#ffffff;
   --color-border:#484848;--color-input:#606060;--color-ring:#b4b4b4;
