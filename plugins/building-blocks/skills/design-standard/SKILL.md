@@ -34,6 +34,11 @@ there's nothing to drift.
 ## The rules that matter most (full detail in DESIGN_STANDARD.md)
 - **Snap everything to the scale** — spacing is 4px-based (default gap 16, card padding 24, section 64); type,
   radius, motion all come from the token scales. No arbitrary `p-[13px]`.
+- **Spacing = scale → roles → proximity (§21).** Reference semantic roles (`--stack-*`, `--inset-*`, `--inline-*`),
+  not bare px. Obey the proximity inequality so layouts feel intentional, not scattered:
+  `label↔input (4) < field↔field (24) < group↔group (32) < section↔section (48)` — inner gap always smaller than
+  outer. **Match field width to expected input** (postcode ~5ch, year 4ch — never full-width). Controls 40px default
+  (44 touch); cards 16–24 padding; containers capped (app 1280 / form 480 / prose 65ch). Full sizing tables in §21.
 - **Semantic tokens only** — components reference `--color-*` / `--space-*` / `--radius` / motion tokens; never a
   hard-coded hex/px/ms. That's what lets one base re-skin per brand.
 - **Universal state cycle** — every actionable element does hover (lift+shadow) → press (compress) → release

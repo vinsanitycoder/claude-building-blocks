@@ -5,8 +5,8 @@
 
 /* ===== Button ===== */
 .ds-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
-  height: 2.5rem; padding: 0 var(--space-4);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--inline-tight);
+  height: var(--control-md); padding: 0 var(--inset-squish-x);
   font-family: inherit; font-size: var(--text-sm); font-weight: 500; line-height: 1;
   border: 1px solid transparent; border-radius: calc(var(--radius) - 2px);
   cursor: pointer; white-space: nowrap; user-select: none;
@@ -20,8 +20,8 @@
 .ds-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-ring); }
 .ds-btn:disabled, .ds-btn[aria-disabled="true"] { opacity: .5; pointer-events: none; box-shadow: none; transform: none; }
 
-.ds-btn--sm   { height: 2rem;   padding: 0 var(--space-3); font-size: var(--text-sm); }
-.ds-btn--lg   { height: 2.75rem; padding: 0 var(--space-6); font-size: var(--text-base); }
+.ds-btn--sm   { height: var(--control-sm); padding: 0 var(--space-3); font-size: var(--text-sm); }
+.ds-btn--lg   { height: var(--control-lg); padding: 0 var(--space-6); font-size: var(--text-base); }
 .ds-btn--icon { width: 2.5rem; padding: 0; }
 
 .ds-btn--primary     { background: var(--color-primary); color: var(--color-primary-foreground); }
@@ -39,7 +39,7 @@
 
 /* ===== Input / Textarea ===== */
 .ds-input {
-  display: block; width: 100%; height: 2.5rem; padding: 0 var(--space-3);
+  display: block; width: 100%; height: var(--control-md); padding: 0 var(--space-3);
   font-family: inherit; font-size: var(--text-sm); color: var(--color-foreground);
   background: var(--color-background); border: 1px solid var(--color-input);
   border-radius: calc(var(--radius) - 2px);
@@ -65,8 +65,9 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-card {
   background: var(--color-card); color: var(--color-card-foreground);
   border: 1px solid var(--color-border); border-radius: var(--radius);
-  padding: var(--space-6); box-shadow: var(--shadow-sm);
+  padding: var(--inset-card); box-shadow: var(--shadow-sm);
 }
+.ds-card--compact { padding: var(--inset-card-compact); }
 .ds-card--interactive { cursor: pointer; transition: box-shadow var(--duration-fast), transform var(--duration-fast); }
 @media (hover: hover) { .ds-card--interactive:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); } }
 .ds-card--interactive:active { transform: translateY(0); box-shadow: var(--shadow-sm); }

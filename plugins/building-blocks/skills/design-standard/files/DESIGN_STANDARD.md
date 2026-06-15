@@ -100,6 +100,11 @@ These are the specific tells that make generated UIs look cheap, and the fix for
 
 ## 3. Spacing & layout
 
+> This section is the spacing **scale** (the legal values). For the prescriptive *system* that makes
+> layouts feel intentional — semantic spacing **roles**, the **proximity rule**, and exact control /
+> field / card / screen / modal **sizing** — see **§21 (the spacing & sizing playbook)**. If a screen
+> ever feels "boxes placed at random," the fix lives in §21.
+
 **Base unit: 4px. Layout rhythm: 8px (the 8-point grid).** Use multiples of 4 for component
 internals; prefer multiples of 8 for layout gaps. **[Verified — 8px is the convergent enterprise
 base (IBM Carbon "mini unit", Atlassian); Tailwind/Atlassian use a 4px half-step]**
@@ -807,6 +812,147 @@ correlation → **scatter**; part-of-whole ≤5 parts → pie/donut *sparingly* 
 
 ---
 
+## 21. Spacing & sizing system — the prescriptive playbook **[Researched]**
+
+> §3 gives the spacing *scale* (the legal values). This section is the *grammar* — which value
+> goes where, how big each control/card/screen is, and the one rule that makes a layout read as
+> **intentional instead of scattered**. If a screen ever feels "boxes placed at random," it's
+> almost always missing the **roles** (§21.2) or violating the **proximity inequality** (§21.3).
+
+**The model in one line:** *scale → roles → proximity.* The **scale** gives legal values (§3); a
+**role** says what a value means (padding vs gap vs section break); **proximity** sets the
+relationship between roles (related = closer, unrelated = farther). Most UIs have the scale and skip
+the other two — every value is "on-grid" yet nothing feels deliberate.
+
+### 21.1 Never eyeball — every value comes from the scale
+Spacing is only ever a token from §3 (`4 8 12 16 20 24 32 40 48 64 80 96`). No `p-[17px]`, no `margin:
+13px`. A small fixed set creates **rhythm** the eye reads as deliberate, and removes ambiguity (every
+spacing choice is one of ~12 picks, not infinite px). Enforce with lint (ban Tailwind arbitrary
+values). [Refactoring UI; Primer "no raw values"]
+
+### 21.2 Spacing roles (the semantic tier — reference these, not raw px)
+A `16px` could be padding, a field gap, or a section gap. Give space **meaning** via named roles
+(token taxonomy: EightShapes *Inset / Inset-squish / Stack / Inline*; SEEK Braid `Stack`/`Inline`).
+These ship in `globals.css` as a second token tier over the scale:
+
+| Role | What it controls | Token | px |
+|---|---|---|---|
+| **Inset** | Padding inside a card/panel | `--inset-card` (`--inset-card-compact`) | 24 (16) |
+| **Inset-squish** | Padding inside button/input/cell (less top/bottom than sides) | `--inset-squish-y` × `--inset-squish-x` | 8 × 16 |
+| **Stack-tight** | Label↔input, input↔help/error | `--stack-tight` | 4 |
+| **Stack-default** | Field↔field | `--stack-default` (`--stack-dense`) | 24 (16) |
+| **Stack-group** | Group↔group within a section | `--stack-group` | 32 |
+| **Stack-section** | Section↔section | `--stack-section` | 48 |
+| **Inline-tight** | Icon↔label, chip↔chip | `--inline-tight` | 8 |
+| **Inline-default** | Button↔button in an action row | `--inline-default` | 12 |
+
+Components reference the role (`gap: var(--stack-default)`), never the raw value — so density and
+brand can remap one tier and the whole app reflows.
+
+### 21.3 The proximity rule (the #1 "designed vs random" lever)
+Gestalt's Law of Proximity: things close together read as **one group**; things far apart read as
+**separate**. So spacing must **strictly increase as the relationship weakens** — roughly **1.5–2×
+per level**, and **inner gap < outer gap, always**.
+
+```
+label ↔ input   <   field ↔ field   <   group ↔ group   <   section ↔ section
+     4px                  24px                 32px                48–64px
+```
+
+| Boundary | Inner | Outer | Ratio |
+|---|---|---|---|
+| label ↔ input  (vs next field) | 4 | 24 | labels bind very tightly |
+| field ↔ field  (vs group break) | 24 | 32–48 | ~1.5–2× |
+| group ↔ group  (vs section break) | 32 | 48–64 | ~1.5–2× |
+
+**The classic bug:** if the label-to-input gap ≥ the field-to-field gap, the eye groups each label
+with the field *above* it. Keep label↔input the **tightest** gap on the form. [NN/g, Refactoring UI]
+
+### 21.4 Control & field sizing
+- **Heights:** `sm 32` (`h-8`, dense/pointer-only) · **`md 40` (`h-10`) = default** for input/select/
+  button · `lg 44` (`h-11`, primary CTA / touch). Tokens `--control-sm/md/lg`. Touch targets ≥ 44px
+  (pad the hit-area even if the visual control is smaller). [Carbon 32/40/48; Material btn 40; shadcn]
+- **Internal padding:** input `px-3` (12); button `px-4` (16) — buttons carry more so the label
+  breathes. Vertical = inset-squish (8). Icon-only button = square (width = height).
+- **Field WIDTH — match the field to its expected input** (the single biggest "random form" fix).
+  Free-text/unknown-length (email, address, name, search) → **full-width** in a single column.
+  Bounded answers get a **fixed character width** and must NOT stretch:
+
+  | Field | Width |
+  |---|---|
+  | day / month / age / CVC | 2–3 ch (`w-[7ch]`) |
+  | year (YYYY) / PIN | 4 ch (`w-[9ch]`) |
+  | postcode / ZIP | ~5 ch (`w-[11ch]`) |
+  | phone / reference | ~10 ch (`w-[16ch]`) |
+  | short free text | ~20 ch (`w-[26ch]`) |
+
+  Match `maxlength` + `inputmode` to the visual width so cue, constraint, and keyboard agree.
+  Never exceed ~20ch for a single short field. [GOV.UK width classes; NN/g; Baymard]
+
+### 21.5 Card sizing
+- **Padding:** compact **16** (`p-4`) · **default 20–24** (`p-5`/`p-6`) · spacious **24** (`p-6`).
+- **Internal rhythm:** title→body **8**, body→actions **16**, section→section in a card **24**.
+- **Width:** text card ~**280 min / 600–680 max** (cap line length ≤ ~70ch).
+- **Card grid:** `repeat(auto-fit, minmax(280px, 1fr))` — 1 col on phones → 2–4 on desktop, no media
+  queries (use 320–360 min for image-led cards). Cards **stretch to fill the track** (`1fr`) so rows
+  align; content stays left and capped. Fixed width only for a discrete known-size object.
+
+### 21.6 Tables / list rows
+Row heights **compact 32 / default 40 / comfortable 48**; header = default (40–48). Cell padding
+`px-4` (16), `px-3` (12) when compact. Pick density by data volume: analytics → 32; editable → 40–48.
+[Carbon 24/32/40/48/64; Material 52 row/56 header]
+
+### 21.7 Layout, containers & screens
+- **Breakpoints** (Tailwind, unchanged): `sm 640 · md 768 · lg 1024 · xl 1280 · 2xl 1536`. Use
+  Material's *intent* per tier: base = single column; `md` = two-pane viable / sidebar appears;
+  `lg` = persistent sidebar + multi-column; `xl` = content hits max-width.
+- **Container max-widths** (tokens `--container-*`): app shell **1280** (media-heavy 1440); reading
+  **65ch ≈ 680**; single-column form **480**; wide form **720**; dashboards/data tables **full-bleed**.
+- **Page side padding / gutters:** **16** mobile → **24** tablet → **32** desktop (`px-4 md:px-6 lg:px-8`).
+  12-col grid gutter: 16 (mobile) → 24 (`md`) → 24–32 (`lg`). [Material 16/24dp; Carbon 32px; Bootstrap 24px]
+
+### 21.8 Section rhythm (page-level vertical)
+Between **major page sections**: **96** desktop → **48–64** mobile (`py-12 md:py-24`). Sub-section: 64 →
+40–48 (`py-10 md:py-16`). **Mobile ≈ 50–66% of desktop** section spacing. All on the 8px scale.
+
+### 21.9 Modal / drawer / popover sizing (tokens shipped)
+- **Dialog:** sm **448** · md **520** (default) · lg **720** · xl **880**; max-height **85vh** (body
+  scrolls, header/footer fixed); **full-screen below 640px**. [Material max 560; Ant 520/confirm 416; shadcn ~512]
+- **Drawer/sheet:** sm **320** · md **400** · lg **560** · xl **736**; **~90vw on mobile** (or use a
+  bottom sheet). [Ant 378/736]
+- **Popover/menu:** min **200** / max **320**; select-style popovers match the trigger width.
+
+### 21.10 Density modes
+Two densities from **one** scale — remap only the semantic tier, never invent a second scale:
+```css
+[data-density="compact"] {
+  --inset-card: var(--space-4);     /* 24→16 */
+  --stack-default: var(--space-4);  /* 24→16 */
+  --inset-squish-y: var(--space-1); /* 8→4  */
+}
+```
+Components read `--inset-card`/`--stack-default`, so flipping `data-density` reflows the whole app.
+Both ends still resolve to scale values. Touch targets stay ≥ 44px. [Carbon; Material density −1 = −4dp]
+
+### 21.11 Fluid spacing (optional, advanced)
+For type + space that scale *smoothly* between viewports instead of jumping at breakpoints, use
+`clamp()` (the Utopia approach): a value at a **min viewport (~320)** and **max viewport (~1280)**,
+linearly interpolated. Keep **breakpoints for structural changes** (1-col → 2-pane), use **clamp for the
+in-between sizing**. Example (section gap 48→96px): `clamp(3rem, 2.13rem + 4.35vw, 6rem)`. Generate at
+utopia.fyi and export the custom properties. Not required to ship — the fixed scale above is the baseline.
+
+### 21.12 The pre-ship spacing checklist
+Run this on any screen before calling it done:
+1. **Every gap is a scale token** — zero arbitrary px.
+2. **Every gap references a role** (`--stack-*`, `--inset-*`, `--inline-*`), not a bare number.
+3. **Proximity holds:** label↔input < field↔field < group↔group < section↔section.
+4. **Field widths match expected input** — short fields are short, not full-width.
+5. **Controls are 40px default** (44 touch), cards 16–24 padding, on the grid.
+6. **Containers capped** (app 1280 / form 480 / prose 65ch) — content isn't a full-width wall of text.
+7. **Verified at mobile (375px) and desktop** — spacing compresses ~50–66% on mobile, structure holds.
+
+---
+
 ## Appendix A — Copy-paste token file (`app/globals.css`)
 
 > Neutral base values. Light + dark. A brand overrides the **color** tokens and the two **font**
@@ -819,6 +965,20 @@ correlation → **scatter**; part-of-whole ≤5 parts → pie/donut *sparingly* 
   --space-0:0; --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem;
   --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem; --space-10:2.5rem; --space-12:3rem;
   --space-16:4rem; --space-20:5rem; --space-24:6rem;
+
+  /* semantic spacing roles (§21) — reference these in components, not raw --space-* */
+  --inset-squish-y:var(--space-2); --inset-squish-x:var(--space-4);
+  --inset-card-compact:var(--space-4); --inset-card:var(--space-6);
+  --stack-tight:var(--space-1); --stack-default:var(--space-6); --stack-dense:var(--space-4);
+  --stack-group:var(--space-8); --stack-section:var(--space-12);
+  --inline-tight:var(--space-2); --inline-default:var(--space-3);
+  /* sizing (§21) */
+  --control-sm:2rem; --control-md:2.5rem; --control-lg:2.75rem;
+  --container-app:1280px; --container-wide:1440px; --container-prose:65ch;
+  --container-form:480px; --container-form-wide:720px;
+  --dialog-sm:448px; --dialog-md:520px; --dialog-lg:720px; --dialog-xl:880px; --dialog-max-h:85vh;
+  --drawer-sm:320px; --drawer-md:400px; --drawer-lg:560px; --drawer-xl:736px;
+  --popover-min:200px; --popover-max:320px;
 
   --text-xs:.75rem;  --leading-xs:1rem;
   --text-sm:.875rem; --leading-sm:1.25rem;

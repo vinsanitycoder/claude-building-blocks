@@ -14,6 +14,35 @@
   --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem; --space-10:2.5rem; --space-12:3rem;
   --space-16:4rem; --space-20:5rem; --space-24:6rem;
 
+  /* ---- SEMANTIC SPACING ROLES (reference THESE in components, not raw --space-*).
+     This is the "grammar" that makes layouts read as intentional, not scattered:
+     a value carries meaning (what it separates), and the proximity inequality holds —
+     stack-tight < stack-default < stack-group < stack-section. See DESIGN_STANDARD §21. */
+  --inset-squish-y:var(--space-2);     /* 8  — button/input vertical padding   */
+  --inset-squish-x:var(--space-4);     /* 16 — button/input horizontal padding */
+  --inset-card-compact:var(--space-4); /* 16 — dense card/panel padding        */
+  --inset-card:var(--space-6);         /* 24 — default card/panel padding      */
+  --stack-tight:var(--space-1);        /* 4  — label↔input, input↔help/error   */
+  --stack-default:var(--space-6);      /* 24 — field↔field (comfortable)       */
+  --stack-dense:var(--space-4);        /* 16 — field↔field (dense)             */
+  --stack-group:var(--space-8);        /* 32 — group↔group within a section    */
+  --stack-section:var(--space-12);     /* 48 — section↔section                 */
+  --inline-tight:var(--space-2);       /* 8  — icon↔label, chip↔chip           */
+  --inline-default:var(--space-3);     /* 12 — button↔button in an action row  */
+
+  /* ---- SIZING tokens ---- */
+  --control-sm:2rem;   /* 32 — dense tables/toolbars (pointer only)   */
+  --control-md:2.5rem; /* 40 — DEFAULT input/select/button height     */
+  --control-lg:2.75rem;/* 44 — primary CTAs / touch-first             */
+  --container-app:1280px;    /* page shell                            */
+  --container-wide:1440px;   /* media-heavy / marketing               */
+  --container-prose:65ch;    /* reading measure (~680px, 60–75 chars) */
+  --container-form:480px;    /* single-column form                    */
+  --container-form-wide:720px;
+  --dialog-sm:448px; --dialog-md:520px; --dialog-lg:720px; --dialog-xl:880px; --dialog-max-h:85vh;
+  --drawer-sm:320px; --drawer-md:400px; --drawer-lg:560px; --drawer-xl:736px;
+  --popover-min:200px; --popover-max:320px;
+
   --text-xs:.75rem;   --leading-xs:1rem;
   --text-sm:.875rem;  --leading-sm:1.25rem;
   --text-base:1rem;   --leading-base:1.5rem;
@@ -79,6 +108,24 @@
   --color-warning:#ffc53d;           --color-warning-foreground:#1c1917;
   --color-border:#363a3f;            --color-input:#43484e;            --color-ring:#696e77;
   --color-link:var(--color-primary); --color-link-visited:#b8a6e6;
+}
+
+/* ---- DENSITY: remap only the semantic spacing tier (§21.10). Set data-density on <html> or any
+   wrapper; components read the role tokens so the whole subtree reflows. Touch targets stay ≥44px. */
+[data-density="compact"] {
+  --inset-card:var(--space-4);        /* 24 → 16 */
+  --inset-card-compact:var(--space-3);/* 16 → 12 */
+  --stack-default:var(--space-4);     /* 24 → 16 */
+  --stack-group:var(--space-6);       /* 32 → 24 */
+  --stack-section:var(--space-8);     /* 48 → 32 */
+  --inset-squish-y:var(--space-1);    /* 8  → 4  */
+  --control-md:2.25rem;               /* 40 → 36 */
+}
+[data-density="spacious"] {
+  --inset-card:var(--space-8);        /* 24 → 32 */
+  --stack-default:var(--space-8);     /* 24 → 32 */
+  --stack-group:var(--space-12);      /* 32 → 48 */
+  --stack-section:var(--space-16);    /* 48 → 64 */
 }
 
 /* ---- reset + base elements ---- */
