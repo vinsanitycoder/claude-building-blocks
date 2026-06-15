@@ -33,6 +33,81 @@ export function DesignStandardDemo() {
   );
 }
 
+/** Quick-start panel for colleagues opening the live URL. Plain English, copy-paste blocks. */
+function InstallPanel() {
+  const [copied, setCopied] = React.useState<string | null>(null);
+  async function copy(label: string, text: string) {
+    try { await navigator.clipboard.writeText(text); setCopied(label); setTimeout(() => setCopied(null), 1500); } catch {}
+  }
+  const cmds = `/plugin marketplace add vinsanitycoder/claude-building-blocks
+/plugin install building-blocks@team-blocks`;
+  const settings = `{
+  "extraKnownMarketplaces": {
+    "team-blocks": {
+      "source": { "source": "github", "repo": "vinsanitycoder/claude-building-blocks" }
+    }
+  },
+  "enabledPlugins": ["building-blocks@team-blocks"]
+}`;
+  const codeBox = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre overflow-x-auto";
+  const copyBtn = "absolute top-2 right-2 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50";
+  return (
+    <div className="mb-5 rounded-xl border border-slate-200 bg-white p-4">
+      <div className="mb-1 flex items-center gap-2">
+        <span className="inline-flex h-5 items-center rounded-full bg-slate-900 px-2 text-[10px] font-semibold uppercase tracking-wide text-white">Use this</span>
+        <h3 className="text-sm font-semibold text-slate-900">Install in your own project — 3 steps</h3>
+      </div>
+      <p className="mb-3 text-[13px] text-slate-600">
+        This is our shared base UI. Apply it on any UI work; your brand styling (colour, font, logo) layers on top afterwards.
+      </p>
+
+      <ol className="space-y-3 text-[13px] text-slate-800">
+        <li>
+          <div className="font-medium text-slate-900">1. Install the plugin (once per machine)</div>
+          <div className="mt-1 text-slate-600">Open the Claude Code terminal and run:</div>
+          <div className="relative mt-1.5">
+            <pre className={codeBox}>{cmds}</pre>
+            <button className={copyBtn} onClick={() => copy("cmds", cmds)}>
+              {copied === "cmds" ? "Copied" : "Copy"}
+            </button>
+          </div>
+          <details className="mt-1.5 text-[12px] text-slate-500">
+            <summary className="cursor-pointer hover:text-slate-700">If <code className="rounded bg-slate-100 px-1">/plugin</code> doesn't work in your environment</summary>
+            <div className="mt-1.5 text-slate-600">Open <code className="rounded bg-slate-100 px-1">~/.claude/settings.json</code> and merge in this block (keep your existing keys, just add these two):</div>
+            <div className="relative mt-1.5">
+              <pre className={codeBox}>{settings}</pre>
+              <button className={copyBtn} onClick={() => copy("settings", settings)}>
+                {copied === "settings" ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <div className="mt-1.5 text-slate-600">Fully quit and reopen Claude Code afterwards.</div>
+          </details>
+        </li>
+
+        <li>
+          <div className="font-medium text-slate-900">2. In any project, tell Claude:</div>
+          <div className="relative mt-1.5">
+            <pre className={codeBox}>{"Apply our base design standard."}</pre>
+            <button className={copyBtn} onClick={() => copy("apply", "Apply our base design standard.")}>
+              {copied === "apply" ? "Copied" : "Copy"}
+            </button>
+          </div>
+          <div className="mt-1 text-slate-600">Claude pulls the tokens + components from this skill and wires them in.</div>
+        </li>
+
+        <li>
+          <div className="font-medium text-slate-900">3. (Optional) Layer your brand on top</div>
+          <div className="mt-1 text-slate-600">After the base is in place: <span className="rounded bg-slate-100 px-1 font-mono text-[12px]">"Apply the zhenhub brand."</span> The brand only overrides colour, font, logo, and (optionally) corner-roundness — never spacing, sizing, or component anatomy.</div>
+        </li>
+      </ol>
+
+      <div className="mt-3 border-t border-slate-100 pt-2.5 text-[12px] text-slate-500">
+        <span className="font-medium text-slate-700">What you're looking at below:</span> a live preview of every component in the standard. Pick a colour group or toggle dark mode — nothing else moves; only colour, type, and radius re-skin. That's the whole point: pick once, every app feels consistent.
+      </div>
+    </div>
+  );
+}
+
 function DemoInner() {
   const [theme, setTheme] = useState<string>("slate");
   const [dark, setDark] = useState(false);
@@ -48,6 +123,8 @@ function DemoInner() {
 
   return (
     <div>
+      <InstallPanel />
+
       <div className="mb-4 flex flex-wrap items-center gap-1.5">
         <span className="mr-1 text-xs text-slate-400">Colour</span>
         {THEMES.map(([id, hex]) => (
