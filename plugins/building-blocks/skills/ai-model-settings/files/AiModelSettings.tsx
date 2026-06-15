@@ -17,6 +17,7 @@ import { useState } from "react";
 import { Select } from "../../design-standard/files/components/Select";
 import { Input } from "../../design-standard/files/components/Input";
 import { Button } from "../../design-standard/files/components/Button";
+import { Label, HelpText } from "../../design-standard/files/components/Label";
 
 export type AiProvider = "anthropic" | "openai" | "gemini";
 
@@ -102,54 +103,71 @@ export function AiModelSettings({
     { value: OTHER, label: "Other (enter model id)…" },
   ];
 
+  // §21 proximity: two field GROUPS (model picker · API key) separated by stack-default (24px).
+  // Inside each group, the Label↔control gap is tight (the Label component's own 8px margin),
+  // so labels bind to their control, not float between fields. Provider+Model are an inline pair.
   return (
-    <div className="space-y-3">
-      <div
-        className="grid gap-2"
-        style={{ gridTemplateColumns: pick === OTHER ? "1fr 1fr 1fr" : "1fr 1fr" }}
-      >
-        <Select
-          value={provider}
-          onValueChange={(v) => onProviderChange(v as AiProvider)}
-          options={PROVIDERS.map((p) => ({ value: p.id, label: p.label }))}
-          aria-label="Provider"
-        />
+    <div className="flex flex-col gap-6">
+      {/* Group 1 — model picker. Provider & Model side-by-side; "Other" model-id spans the row. */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="ai-provider">Provider</Label>
+          <Select
+            id="ai-provider"
+            value={provider}
+            onValueChange={(v) => onProviderChange(v as AiProvider)}
+            options={PROVIDERS.map((p) => ({ value: p.id, label: p.label }))}
+            aria-label="Provider"
+          />
+        </div>
 
-        <Select
-          value={pick}
-          onValueChange={setPick}
-          options={modelOptions}
-          aria-label="Model"
-        />
+        <div>
+          <Label htmlFor="ai-model">Model</Label>
+          <Select
+            id="ai-model"
+            value={pick}
+            onValueChange={setPick}
+            options={modelOptions}
+            aria-label="Model"
+          />
+        </div>
 
         {pick === OTHER ? (
-          <Input
-            value={custom}
-            onChange={(e) => setCustom(e.target.value)}
-            placeholder="e.g. claude-opus-4-8"
-            aria-label="Custom model id"
-          />
+          <div className="sm:col-span-2">
+            <Label htmlFor="ai-model-id">Model ID</Label>
+            <Input
+              id="ai-model-id"
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              placeholder="e.g. claude-opus-4-8"
+              aria-label="Custom model id"
+            />
+          </div>
         ) : null}
       </div>
 
-      <div className="grid gap-2" style={{ gridTemplateColumns: "1fr auto" }}>
-        <Input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder={hasExistingKey ? "•••• saved — leave blank to keep, or paste a new key" : "Paste API key (stored encrypted)"}
-          autoComplete="off"
-          aria-label="API key"
-        />
-        <Button onClick={save} disabled={saving || !model} loading={saving}>
-          {saving ? "Saving" : "Save"}
-        </Button>
+      {/* Group 2 — API key. Free-text → full-width input + Save on an action row. */}
+      <div>
+        <Label htmlFor="ai-key">API key</Label>
+        <div className="grid gap-2" style={{ gridTemplateColumns: "1fr auto" }}>
+          <Input
+            id="ai-key"
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder={hasExistingKey ? "•••• saved — leave blank to keep, or paste a new key" : "Paste API key (stored encrypted)"}
+            autoComplete="off"
+            aria-label="API key"
+          />
+          <Button onClick={save} disabled={saving || !model} loading={saving}>
+            {saving ? "Saving" : "Save"}
+          </Button>
+        </div>
+        {savedMsg ? (
+          <p className="text-sm" style={{ color: "var(--color-success)", marginTop: "var(--stack-tight)" }}>{savedMsg}</p>
+        ) : null}
+        <HelpText>The key is sent to your server, encrypted at rest, and never shown again. Leaving it blank keeps the existing key.</HelpText>
       </div>
-
-      {savedMsg ? <p className="text-xs" style={{ color: "var(--color-success)" }}>{savedMsg}</p> : null}
-      <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
-        The key is sent to your server, encrypted at rest, and never shown again. Leaving it blank keeps the existing key.
-      </p>
     </div>
   );
 }

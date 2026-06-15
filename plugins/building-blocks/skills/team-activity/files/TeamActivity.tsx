@@ -49,7 +49,7 @@ export function TeamActivity({
       {/* Poller / background-job health */}
       {pollHealth !== undefined ? (
         <div
-          className="ds-card p-4"
+          className="ds-card p-5"
           style={
             pollHealth && pollHealth.ok && pollHealth.ageMin <= 15
               ? undefined
