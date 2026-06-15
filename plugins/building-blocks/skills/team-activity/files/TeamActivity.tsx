@@ -47,18 +47,29 @@ export function TeamActivity({
     <div className="space-y-6">
       {/* Poller / background-job health */}
       {pollHealth !== undefined ? (
-        <div className={`rounded-xl border p-4 ${pollHealth && pollHealth.ok && pollHealth.ageMin <= 15 ? "border-slate-200 bg-white" : "border-rose-200 bg-rose-50"}`}>
+        <div
+          className="ds-card p-4"
+          style={
+            pollHealth && pollHealth.ok && pollHealth.ageMin <= 15
+              ? undefined
+              : { background: "color-mix(in srgb, var(--color-destructive) 8%, var(--color-card))",
+                  borderColor: "color-mix(in srgb, var(--color-destructive) 30%, var(--color-border))" }
+          }
+        >
           <div className="flex items-center gap-2">
-            <span className={`inline-block h-2.5 w-2.5 rounded-full ${pollHealth && pollHealth.ok && pollHealth.ageMin <= 15 ? "bg-green-500" : "bg-rose-500"}`} />
-            <span className="text-sm font-semibold text-slate-800">Background job health</span>
-            <span className="ml-auto text-xs text-slate-500">{pollHealth ? `Last run ${relTime(pollHealth.ranAt, now)}` : "Has not run yet"}</span>
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ background: pollHealth && pollHealth.ok && pollHealth.ageMin <= 15 ? "var(--color-success)" : "var(--color-destructive)" }}
+            />
+            <span className="text-sm font-semibold text-[var(--color-foreground)]">Background job health</span>
+            <span className="ml-auto text-xs text-[var(--color-muted-foreground)]">{pollHealth ? `Last run ${relTime(pollHealth.ranAt, now)}` : "Has not run yet"}</span>
           </div>
           {!pollHealth ? (
-            <p className="mt-2 text-xs text-slate-500">Waiting for the first scheduled run.</p>
+            <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">Waiting for the first scheduled run.</p>
           ) : pollHealth.ok && pollHealth.ageMin <= 15 ? (
-            <p className="mt-2 text-xs text-slate-500">Healthy — {pollHealth.created ?? 0} new / {pollHealth.drafted ?? 0} processed on the last run.</p>
+            <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">Healthy — {pollHealth.created ?? 0} new / {pollHealth.drafted ?? 0} processed on the last run.</p>
           ) : (
-            <div className="mt-2 text-xs text-rose-700">
+            <div className="mt-2 text-xs" style={{ color: "var(--color-destructive)" }}>
               <p className="font-medium">{!pollHealth.ok ? "The last run failed." : `No successful run in ${pollHealth.ageMin} min.`}</p>
               {pollHealth.errors.slice(0, 4).map((e, i) => <p key={i} className="truncate">{e.inbox}: {e.error}</p>)}
             </div>
@@ -67,24 +78,31 @@ export function TeamActivity({
       ) : null}
 
       {/* Presence + roles */}
-      <div className="rounded-xl border border-slate-200 bg-white">
-        <div className="border-b border-slate-100 px-5 py-3 text-sm font-semibold text-slate-700">Who&apos;s online &amp; roles</div>
-        <ul className="divide-y divide-slate-50">
-          {users.map((u) => {
+      <div className="ds-card p-0">
+        <div className="px-5 py-3 text-sm font-semibold text-[var(--color-foreground)]" style={{ borderBottom: "1px solid var(--color-border)" }}>
+          Who&apos;s online &amp; roles
+        </div>
+        <ul>
+          {users.map((u, ix) => {
             const st = effectiveStatus(typeof u.status === "string" ? u.status : null, u.lastSeen, now);
             return (
-              <li key={u.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
+              <li
+                key={u.id}
+                className="flex flex-wrap items-center gap-3 px-5 py-3"
+                style={ix === 0 ? undefined : { borderTop: "1px solid var(--color-border)" }}
+              >
                 <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOT[st]}`} />
-                <span className="min-w-0 flex-1 text-sm font-medium text-slate-800">{u.name}</span>
-                <span className="text-sm text-slate-600">{LABEL[st]}</span>
-                <span className="w-20 text-right text-xs text-slate-400">{relTime(u.lastSeen, now)}</span>
+                <span className="min-w-0 flex-1 text-sm font-medium text-[var(--color-foreground)]">{u.name}</span>
+                <span className="text-sm text-[var(--color-muted-foreground)]">{LABEL[st]}</span>
+                <span className="w-20 text-right text-xs text-[var(--color-muted-foreground)]">{relTime(u.lastSeen, now)}</span>
                 {u.id === meId || !onRoleChange ? (
-                  <span className="w-28 text-right text-xs text-slate-400">{u.role}{u.id === meId ? " (you)" : ""}</span>
+                  <span className="w-28 text-right text-xs text-[var(--color-muted-foreground)]">{u.role}{u.id === meId ? " (you)" : ""}</span>
                 ) : (
                   <select
                     defaultValue={u.role}
                     onChange={(e) => onRoleChange(u.id, e.target.value)}
-                    className="w-28 rounded border border-slate-300 px-1 py-1 text-xs"
+                    className="ds-input ds-btn--sm"
+                    style={{ width: "7rem", height: "1.75rem", paddingInline: "0.5rem" }}
                   >
                     {roles.map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
@@ -97,20 +115,20 @@ export function TeamActivity({
 
       {/* Today's 24h timeline */}
       {today ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="ds-card p-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-700">Activity today · 24 hours</h2>
-            <div className="flex items-center gap-3 text-[11px] text-slate-500">
-              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-green-500" />Active</span>
-              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-amber-400" />Idle</span>
-              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-slate-400" />Not in focus</span>
+            <h2 className="text-sm font-semibold text-[var(--color-foreground)]">Activity today · 24 hours</h2>
+            <div className="flex items-center gap-3 text-[11px] text-[var(--color-muted-foreground)]">
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm" style={{ background: "var(--color-success)" }} />Active</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm" style={{ background: "var(--color-warning)" }} />Idle</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm" style={{ background: "var(--color-muted-foreground)" }} />Not in focus</span>
             </div>
           </div>
           <div className="mt-4 space-y-2">
             {users.map((u) => (
               <div key={u.id} className="flex items-center gap-3">
-                <span className="w-24 shrink-0 truncate text-right text-xs text-slate-600">{u.name}</span>
-                <div className="relative h-5 flex-1 overflow-hidden rounded bg-slate-100">
+                <span className="w-24 shrink-0 truncate text-right text-xs text-[var(--color-muted-foreground)]">{u.name}</span>
+                <div className="relative h-5 flex-1 overflow-hidden rounded" style={{ background: "var(--color-muted)" }}>
                   {segments.filter((s) => s.userId === u.id).map((s, i) => (
                     <span
                       key={i}
@@ -127,7 +145,7 @@ export function TeamActivity({
           </div>
           <div className="mt-1 flex gap-3">
             <span className="w-24 shrink-0" />
-            <div className="flex flex-1 justify-between text-[10px] text-slate-400">
+            <div className="flex flex-1 justify-between text-[10px] text-[var(--color-muted-foreground)]">
               {hours.map((h) => <span key={h}>{fmtHour(h)}</span>)}
             </div>
           </div>
@@ -136,19 +154,19 @@ export function TeamActivity({
 
       {/* Monthly heatmap */}
       {month ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
-          <h2 className="text-sm font-semibold text-slate-700">Active hours by day · this month</h2>
+        <div className="ds-card p-5">
+          <h2 className="text-sm font-semibold text-[var(--color-foreground)]">Active hours by day · this month</h2>
           <div className="mt-4 overflow-x-auto">
             <div className="flex items-center gap-1">
               <span className="w-24 shrink-0" />
               {Array.from({ length: month.daysInMonth }, (_, i) => i + 1).map((d) => (
-                <span key={d} className="w-4 shrink-0 text-center text-[8px] text-slate-400">{d === 1 || d % 5 === 0 ? d : ""}</span>
+                <span key={d} className="w-4 shrink-0 text-center text-[8px] text-[var(--color-muted-foreground)]">{d === 1 || d % 5 === 0 ? d : ""}</span>
               ))}
             </div>
             <div className="mt-1 space-y-1">
               {users.map((u) => (
                 <div key={u.id} className="flex items-center gap-1">
-                  <span className="w-24 shrink-0 truncate text-right text-xs text-slate-600">{u.name}</span>
+                  <span className="w-24 shrink-0 truncate text-right text-xs text-[var(--color-muted-foreground)]">{u.name}</span>
                   {Array.from({ length: month.daysInMonth }, (_, i) => i + 1).map((d) => {
                     const dayStr = `${month.prefix}-${String(d).padStart(2, "0")}`;
                     const sec = monthMap.get(`${u.id}|${dayStr}`) ?? 0;
@@ -158,9 +176,9 @@ export function TeamActivity({
               ))}
             </div>
           </div>
-          <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500">
+          <div className="mt-3 flex items-center gap-1.5 text-[11px] text-[var(--color-muted-foreground)]">
             Less
-            <span className="h-3 w-3 rounded-sm bg-slate-100" />
+            <span className="h-3 w-3 rounded-sm" style={{ background: "var(--color-muted)" }} />
             <span className="h-3 w-3 rounded-sm bg-green-200" />
             <span className="h-3 w-3 rounded-sm bg-green-300" />
             <span className="h-3 w-3 rounded-sm bg-green-500" />
@@ -172,14 +190,20 @@ export function TeamActivity({
 
       {/* Recent events */}
       {events.length > 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white">
-          <div className="border-b border-slate-100 px-5 py-3 text-sm font-semibold text-slate-700">Recent activity</div>
-          <ul className="divide-y divide-slate-50 text-sm">
-            {events.slice(0, 20).map((e) => (
-              <li key={e.id} className="flex items-center gap-3 px-5 py-2">
-                <span className="min-w-0 flex-1 truncate text-slate-700">{e.name}</span>
-                <span className="text-xs text-slate-500">{e.type}</span>
-                <span className="w-20 text-right text-xs text-slate-400">{relTime(e.at, now)}</span>
+        <div className="ds-card p-0">
+          <div className="px-5 py-3 text-sm font-semibold text-[var(--color-foreground)]" style={{ borderBottom: "1px solid var(--color-border)" }}>
+            Recent activity
+          </div>
+          <ul className="text-sm">
+            {events.slice(0, 20).map((e, ix) => (
+              <li
+                key={e.id}
+                className="flex items-center gap-3 px-5 py-2"
+                style={ix === 0 ? undefined : { borderTop: "1px solid var(--color-border)" }}
+              >
+                <span className="min-w-0 flex-1 truncate text-[var(--color-foreground)]">{e.name}</span>
+                <span className="text-xs text-[var(--color-muted-foreground)]">{e.type}</span>
+                <span className="w-20 text-right text-xs text-[var(--color-muted-foreground)]">{relTime(e.at, now)}</span>
               </li>
             ))}
           </ul>

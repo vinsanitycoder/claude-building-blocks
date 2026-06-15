@@ -113,24 +113,32 @@ export function CsvImporter<T>({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-slate-700">{title}</h2>
-        <button onClick={downloadTemplate} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+        <h2 className="text-sm font-semibold text-[var(--color-foreground)]">{title}</h2>
+        <button onClick={downloadTemplate} className="ds-btn ds-btn--outline ds-btn--sm">
           ⬇ Download template
         </button>
       </div>
 
       {result ? (
-        <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm">
-          <div className="font-semibold text-green-800">Imported {result.imported} {result.imported === 1 ? noun : `${noun}s`} ✓</div>
+        <div
+          className="ds-card p-4 text-sm"
+          style={{
+            background: "color-mix(in srgb, var(--color-success) 10%, var(--color-card))",
+            borderColor: "color-mix(in srgb, var(--color-success) 30%, var(--color-border))",
+          }}
+        >
+          <div className="font-semibold" style={{ color: "var(--color-success)" }}>
+            Imported {result.imported} {result.imported === 1 ? noun : `${noun}s`} ✓
+          </div>
           {result.skipped.length > 0 ? (
-            <div className="mt-2 text-slate-600">
+            <div className="mt-2 text-[var(--color-muted-foreground)]">
               Skipped {result.skipped.length}:
-              <ul className="mt-1 list-disc pl-5 text-xs text-slate-500">
+              <ul className="mt-1 list-disc pl-5 text-xs text-[var(--color-muted-foreground)]">
                 {result.skipped.slice(0, 20).map((s, i) => <li key={i}>Row {s.row}: {s.reason}</li>)}
               </ul>
             </div>
           ) : null}
-          <button onClick={() => setResult(null)} className="mt-3 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-700">
+          <button onClick={() => setResult(null)} className="ds-btn ds-btn--primary ds-btn--sm mt-3">
             Import another file
           </button>
         </div>
@@ -141,11 +149,16 @@ export function CsvImporter<T>({
             onDragLeave={() => setDragging(false)}
             onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f); }}
             onClick={() => inputRef.current?.click()}
-            className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition ${dragging ? "border-blue-400 bg-blue-50" : "border-slate-300 bg-white hover:bg-slate-50"}`}
+            className="cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition"
+            style={{
+              borderColor: dragging ? "var(--color-primary)" : "var(--color-border)",
+              background: dragging ? "var(--color-accent)" : "var(--color-card)",
+              color: "var(--color-foreground)",
+            }}
           >
             <div className="text-3xl">📄</div>
-            <div className="mt-2 text-sm font-medium text-slate-700">Drag a CSV or Excel file here, or click to choose</div>
-            <div className="mt-1 text-xs text-slate-400">{fileName ? `Loaded: ${fileName}` : "Use the template above for the right columns."}</div>
+            <div className="mt-2 text-sm font-medium">Drag a CSV or Excel file here, or click to choose</div>
+            <div className="mt-1 text-xs text-[var(--color-muted-foreground)]">{fileName ? `Loaded: ${fileName}` : "Use the template above for the right columns."}</div>
             <input
               ref={inputRef}
               type="file"
@@ -155,21 +168,37 @@ export function CsvImporter<T>({
             />
           </div>
 
-          {parseError ? <div className="rounded-lg bg-rose-50 px-4 py-2 text-sm text-rose-700">{parseError}</div> : null}
+          {parseError ? (
+            <div
+              className="rounded-lg px-4 py-2 text-sm"
+              style={{
+                background: "color-mix(in srgb, var(--color-destructive) 10%, var(--color-card))",
+                color: "var(--color-destructive)",
+              }}
+            >
+              {parseError}
+            </div>
+          ) : null}
 
           {rows.length > 0 ? (
             <>
               <div className="flex flex-wrap items-center gap-3 text-sm">
-                <span className="rounded bg-green-100 px-2 py-0.5 text-green-800">{valid.length} ready</span>
-                {invalid.length > 0 ? <span className="rounded bg-rose-100 px-2 py-0.5 text-rose-700">{invalid.length} with errors (skipped)</span> : null}
-                <button onClick={commit} disabled={pending || valid.length === 0} className="ml-auto rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-50">
+                <span className="ds-badge ds-badge--success">{valid.length} ready</span>
+                {invalid.length > 0 ? <span className="ds-badge ds-badge--destructive">{invalid.length} with errors (skipped)</span> : null}
+                <button onClick={commit} disabled={pending || valid.length === 0} className="ds-btn ds-btn--primary ml-auto">
                   {pending ? "Importing…" : `Import ${valid.length} ${valid.length === 1 ? noun : `${noun}s`}`}
                 </button>
               </div>
 
-              <div className="max-h-96 overflow-auto rounded-xl border border-slate-200">
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-400">
+              <div
+                className="max-h-96 overflow-auto rounded-xl border"
+                style={{ borderColor: "var(--color-border)" }}
+              >
+                <table className="w-full text-sm" style={{ color: "var(--color-foreground)" }}>
+                  <thead
+                    className="sticky top-0 text-left text-xs uppercase tracking-wide"
+                    style={{ background: "var(--color-muted)", color: "var(--color-muted-foreground)" }}
+                  >
                     <tr>
                       <th className="px-3 py-2 font-medium">#</th>
                       <th className="px-3 py-2 font-medium">Status</th>
@@ -178,18 +207,26 @@ export function CsvImporter<T>({
                   </thead>
                   <tbody>
                     {rows.slice(0, 200).map((r) => (
-                      <tr key={r.n} className={`border-t border-slate-50 ${r.ok ? "" : "bg-rose-50/40"}`}>
-                        <td className="px-3 py-1.5 text-slate-400">{r.n}</td>
+                      <tr
+                        key={r.n}
+                        style={{
+                          borderTop: "1px solid var(--color-border)",
+                          background: r.ok ? undefined : "color-mix(in srgb, var(--color-destructive) 6%, transparent)",
+                        }}
+                      >
+                        <td className="px-3 py-1.5 text-[var(--color-muted-foreground)]">{r.n}</td>
                         <td className="px-3 py-1.5">
-                          {r.ok ? <span className="text-green-600">✓ ready</span> : <span className="text-rose-600">⚠ {r.errors.join("; ")}</span>}
+                          {r.ok
+                            ? <span style={{ color: "var(--color-success)" }}>✓ ready</span>
+                            : <span style={{ color: "var(--color-destructive)" }}>⚠ {r.errors.join("; ")}</span>}
                         </td>
-                        {previewCols.map((c) => <td key={c.key} className="px-3 py-1.5 text-slate-600">{r.raw[c.key] || "—"}</td>)}
+                        {previewCols.map((c) => <td key={c.key} className="px-3 py-1.5 text-[var(--color-foreground)]">{r.raw[c.key] || "—"}</td>)}
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              {rows.length > 200 ? <p className="text-xs text-slate-400">Showing first 200 of {rows.length} rows.</p> : null}
+              {rows.length > 200 ? <p className="text-xs text-[var(--color-muted-foreground)]">Showing first 200 of {rows.length} rows.</p> : null}
             </>
           ) : null}
         </>

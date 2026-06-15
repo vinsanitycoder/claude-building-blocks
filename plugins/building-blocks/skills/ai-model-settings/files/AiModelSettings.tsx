@@ -50,7 +50,8 @@ const PROVIDERS: { id: AiProvider; label: string }[] = [
 ];
 
 const OTHER = "__other__";
-const select = "rounded-lg border border-slate-300 px-2.5 py-2 text-sm focus:border-slate-400 focus:outline-none";
+// Uses the design-standard input affordance via .ds-input.
+const select = "ds-input";
 
 export function AiModelSettings({
   defaultProvider = "anthropic",
@@ -113,7 +114,7 @@ export function AiModelSettings({
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
             placeholder="e.g. claude-opus-4-8"
-            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="ds-input flex-1"
           />
         ) : null}
       </div>
@@ -124,20 +125,16 @@ export function AiModelSettings({
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           placeholder={hasExistingKey ? "•••• saved — leave blank to keep, or paste a new key" : "Paste API key (stored encrypted)"}
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="ds-input flex-1"
           autoComplete="off"
         />
-        <button
-          onClick={save}
-          disabled={saving || (!model)}
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-50"
-        >
+        <button onClick={save} disabled={saving || (!model)} className="ds-btn ds-btn--primary">
           {saving ? "Saving…" : "Save"}
         </button>
       </div>
 
-      {savedMsg ? <p className="text-xs text-green-700">{savedMsg}</p> : null}
-      <p className="text-xs text-slate-400">
+      {savedMsg ? <p className="text-xs text-[var(--color-success)]">{savedMsg}</p> : null}
+      <p className="text-xs text-[var(--color-muted-foreground)]">
         The key is sent to your server, encrypted at rest, and never shown again. Leaving it blank keeps the existing key.
       </p>
     </div>
