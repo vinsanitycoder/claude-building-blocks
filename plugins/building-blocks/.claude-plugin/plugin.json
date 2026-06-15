@@ -1,6 +1,6 @@
 {
   "name": "building-blocks",
-  "description": "Reusable, production-refined building blocks for our apps: an AI model + API-key settings control, a drag-drop CSV/Excel data importer with validation, and a team activity monitor (presence + heatmap + job health). Each is a skill bundling the component code plus its server-side wiring contract.",
+  "description": "Reusable, production-refined building blocks for Claude Code apps: a brand-agnostic design standard (tokens + ~34 base components), an AI model + API-key settings control, a drag-drop CSV/Excel data importer with validation, and a team activity monitor (presence + heatmap + job health). Each is a skill bundling the component code plus its server-side wiring contract.",
   "author": { "name": "ZhenHub / Fynlo team" },
   "homepage": "https://github.com/vinsanitycoder/claude-building-blocks",
   "license": "MIT"
