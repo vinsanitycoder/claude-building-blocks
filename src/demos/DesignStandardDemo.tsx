@@ -67,73 +67,69 @@ The plugin repo is github.com/vinsanitycoder/claude-building-blocks. Marketplace
   const codeBoxNoWrap = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre overflow-x-auto";
   const copyBtn = "absolute top-2 right-2 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50";
   return (
-    <div className="mb-5 rounded-xl border border-slate-200 bg-white p-4">
-      <div className="mb-1 flex items-center gap-2">
-        <span className="inline-flex h-5 items-center rounded-full bg-slate-900 px-2 text-[10px] font-semibold uppercase tracking-wide text-white">Use this</span>
-        <h3 className="text-sm font-semibold text-slate-900">Install in your own project — 3 steps</h3>
+    <div className="mb-5 rounded-xl border-2 border-slate-900 bg-white p-4">
+      {/* HERO: one-paste install. The only thing colleagues should focus on first. */}
+      <div className="mb-2 flex items-center gap-2">
+        <span className="inline-flex h-5 items-center rounded-full bg-slate-900 px-2 text-[10px] font-semibold uppercase tracking-wide text-white">Install</span>
+        <h3 className="text-base font-semibold text-slate-900">One-paste install — Claude does it for you</h3>
       </div>
       <p className="mb-3 text-[13px] text-slate-600">
-        This is our shared base UI. Apply it on any UI work; your brand styling (colour, font, logo) layers on top afterwards.
+        Open Claude Code, start a new chat, and paste the message below. Claude has filesystem access and will create or merge your settings file for you — no terminal commands, no JSON editing. Claude will ask before changing the file, so you stay in control. After it finishes, <span className="font-medium text-slate-800">fully quit Claude Code (Cmd+Q on Mac) and reopen it</span>.
       </p>
+      <div className="relative">
+        <pre className={codeBox}>{installPrompt}</pre>
+        <button
+          className="absolute top-2 right-2 rounded-md bg-slate-900 px-3 py-1 text-[12px] font-semibold text-white hover:bg-slate-700"
+          onClick={() => copy("prompt", installPrompt)}
+        >
+          {copied === "prompt" ? "Copied ✓" : "Copy prompt"}
+        </button>
+      </div>
 
-      <ol className="space-y-3 text-[13px] text-slate-800">
-        <li>
-          <div className="font-medium text-slate-900">1. Install the plugin (once per machine)</div>
-          <div className="mt-1.5 text-slate-600">
-            <span className="font-medium text-slate-700">Easiest — let Claude install it for you.</span> Open Claude Code, start a new chat, and paste this whole message. Claude has filesystem access and will create/merge your settings file for you — no JSON editing required.
-          </div>
-          <div className="relative mt-1.5">
-            <pre className={codeBox}>{installPrompt}</pre>
-            <button className={copyBtn} onClick={() => copy("prompt", installPrompt)}>
-              {copied === "prompt" ? "Copied" : "Copy"}
-            </button>
-          </div>
-          <div className="mt-1.5 text-[12px] text-slate-500">
-            After Claude finishes, <span className="font-medium text-slate-700">fully quit Claude Code (Cmd+Q on Mac) and reopen it</span> so the new plugin loads.
-          </div>
-
-          <details className="mt-2 text-[12px] text-slate-500">
-            <summary className="cursor-pointer hover:text-slate-700">Alternative paths if you prefer to do it yourself</summary>
-            <div className="mt-2">
-              <div className="font-medium text-slate-700">A. Terminal slash commands</div>
-              <div className="mt-1 text-slate-600">If your Claude Code accepts <code className="rounded bg-slate-100 px-1">/plugin</code> commands (the interactive terminal CLI does; the desktop / IDE app does not), paste these into a chat one at a time:</div>
-              <div className="relative mt-1.5">
-                <pre className={codeBoxNoWrap}>{cmds}</pre>
-                <button className={copyBtn} onClick={() => copy("cmds", cmds)}>
-                  {copied === "cmds" ? "Copied" : "Copy"}
-                </button>
-              </div>
-            </div>
-            <div className="mt-3">
-              <div className="font-medium text-slate-700">B. Edit settings.json by hand</div>
-              <div className="mt-1 text-slate-600">Open <code className="rounded bg-slate-100 px-1">~/.claude/settings.json</code> (create it with <code className="rounded bg-slate-100 px-1">{"{}"}</code> if it doesn't exist) and merge these two keys into the top-level object, keeping any existing keys:</div>
-              <div className="relative mt-1.5">
-                <pre className={codeBoxNoWrap}>{settings}</pre>
-                <button className={copyBtn} onClick={() => copy("settings", settings)}>
-                  {copied === "settings" ? "Copied" : "Copy"}
-                </button>
-              </div>
-              <div className="mt-1.5 text-slate-600">Save, then fully quit and reopen Claude Code.</div>
-            </div>
-          </details>
-        </li>
-
-        <li>
-          <div className="font-medium text-slate-900">2. In any project, tell Claude:</div>
-          <div className="relative mt-1.5">
-            <pre className={codeBoxNoWrap}>{"Apply our base design standard."}</pre>
-            <button className={copyBtn} onClick={() => copy("apply", "Apply our base design standard.")}>
+      {/* USAGE — what to say after the plugin is installed. */}
+      <div className="mt-4 border-t border-slate-100 pt-3 text-[13px] text-slate-800">
+        <div className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-slate-500">Once it's installed</div>
+        <div className="space-y-2">
+          <div>
+            On any project, ask Claude:&nbsp;
+            <code className="rounded bg-slate-100 px-2 py-0.5 font-mono text-[12px]">"Apply our base design standard."</code>
+            <button className="ml-1 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] text-slate-600 hover:bg-slate-50" onClick={() => copy("apply", "Apply our base design standard.")}>
               {copied === "apply" ? "Copied" : "Copy"}
             </button>
           </div>
-          <div className="mt-1 text-slate-600">Claude pulls the tokens + components from this skill and wires them in.</div>
-        </li>
+          <div className="text-slate-600">
+            Optionally, layer a brand on top:&nbsp;
+            <code className="rounded bg-slate-100 px-2 py-0.5 font-mono text-[12px]">"Apply the zhenhub brand."</code>
+            <span className="text-[12px]"> — brand overrides only colour, font, logo, and (optionally) corner-roundness.</span>
+          </div>
+        </div>
+      </div>
 
-        <li>
-          <div className="font-medium text-slate-900">3. (Optional) Layer your brand on top</div>
-          <div className="mt-1 text-slate-600">After the base is in place: <span className="rounded bg-slate-100 px-1 font-mono text-[12px]">"Apply the zhenhub brand."</span> The brand only overrides colour, font, logo, and (optionally) corner-roundness — never spacing, sizing, or component anatomy.</div>
-        </li>
-      </ol>
+      {/* ALTERNATIVES — collapsed so they don't distract the happy path. */}
+      <details className="mt-3 text-[12px] text-slate-500">
+        <summary className="cursor-pointer hover:text-slate-700">Prefer to install it yourself? Two manual paths</summary>
+        <div className="mt-2">
+          <div className="font-medium text-slate-700">A. Terminal slash commands</div>
+          <div className="mt-1 text-slate-600">If your Claude Code accepts <code className="rounded bg-slate-100 px-1">/plugin</code> commands (the interactive terminal CLI does; the desktop / IDE app does not), paste these into a chat one at a time:</div>
+          <div className="relative mt-1.5">
+            <pre className={codeBoxNoWrap}>{cmds}</pre>
+            <button className={copyBtn} onClick={() => copy("cmds", cmds)}>
+              {copied === "cmds" ? "Copied" : "Copy"}
+            </button>
+          </div>
+        </div>
+        <div className="mt-3">
+          <div className="font-medium text-slate-700">B. Edit settings.json by hand</div>
+          <div className="mt-1 text-slate-600">Open <code className="rounded bg-slate-100 px-1">~/.claude/settings.json</code> (create it with <code className="rounded bg-slate-100 px-1">{"{}"}</code> if it doesn't exist) and merge these two keys into the top-level object, keeping any existing keys:</div>
+          <div className="relative mt-1.5">
+            <pre className={codeBoxNoWrap}>{settings}</pre>
+            <button className={copyBtn} onClick={() => copy("settings", settings)}>
+              {copied === "settings" ? "Copied" : "Copy"}
+            </button>
+          </div>
+          <div className="mt-1.5 text-slate-600">Save, then fully quit and reopen Claude Code.</div>
+        </div>
+      </details>
 
       <div className="mt-3 border-t border-slate-100 pt-2.5 text-[12px] text-slate-500">
         <span className="font-medium text-slate-700">What you're looking at below:</span> a live preview of every component in the standard. Pick a colour group or toggle dark mode — nothing else moves; only colour, type, and radius re-skin. That's the whole point: pick once, every app feels consistent.
