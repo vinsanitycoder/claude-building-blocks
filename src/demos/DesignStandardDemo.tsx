@@ -39,6 +39,20 @@ function InstallPanel() {
   async function copy(label: string, text: string) {
     try { await navigator.clipboard.writeText(text); setCopied(label); setTimeout(() => setCopied(null), 1500); } catch {}
   }
+  // The one-paste install prompt — Claude has filesystem tools, so it can
+  // create/merge ~/.claude/settings.json itself. No JSON editing for the user.
+  const installPrompt = `Please install our team's design-standard plugin so I can use it on any project.
+
+What I need you to do:
+1. Open my Claude Code settings at ~/.claude/settings.json. Create the file with an empty JSON object {} if it does not exist.
+2. Merge in (do NOT replace) these two keys, preserving every existing key:
+   - "extraKnownMarketplaces": { "team-blocks": { "source": { "source": "github", "repo": "vinsanitycoder/claude-building-blocks" } } }
+   - "enabledPlugins": ["building-blocks@team-blocks"]   (if the key already exists, ADD this entry to the array without removing the others)
+3. Save the file.
+4. Tell me to fully quit Claude Code (Cmd+Q on Mac, then reopen).
+5. After I reopen, tell me how to verify it worked: I should be able to ask "what skills do you have available?" and see "design-standard" in the list.
+
+The plugin repo is github.com/vinsanitycoder/claude-building-blocks. Marketplace name: team-blocks. Plugin name: building-blocks.`;
   const cmds = `/plugin marketplace add vinsanitycoder/claude-building-blocks
 /plugin install building-blocks@team-blocks`;
   const settings = `{
@@ -49,7 +63,8 @@ function InstallPanel() {
   },
   "enabledPlugins": ["building-blocks@team-blocks"]
 }`;
-  const codeBox = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre overflow-x-auto";
+  const codeBox = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre-wrap overflow-x-auto";
+  const codeBoxNoWrap = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre overflow-x-auto";
   const copyBtn = "absolute top-2 right-2 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50";
   return (
     <div className="mb-5 rounded-xl border border-slate-200 bg-white p-4">
@@ -64,30 +79,49 @@ function InstallPanel() {
       <ol className="space-y-3 text-[13px] text-slate-800">
         <li>
           <div className="font-medium text-slate-900">1. Install the plugin (once per machine)</div>
-          <div className="mt-1 text-slate-600">Open the Claude Code terminal and run:</div>
+          <div className="mt-1.5 text-slate-600">
+            <span className="font-medium text-slate-700">Easiest — let Claude install it for you.</span> Open Claude Code, start a new chat, and paste this whole message. Claude has filesystem access and will create/merge your settings file for you — no JSON editing required.
+          </div>
           <div className="relative mt-1.5">
-            <pre className={codeBox}>{cmds}</pre>
-            <button className={copyBtn} onClick={() => copy("cmds", cmds)}>
-              {copied === "cmds" ? "Copied" : "Copy"}
+            <pre className={codeBox}>{installPrompt}</pre>
+            <button className={copyBtn} onClick={() => copy("prompt", installPrompt)}>
+              {copied === "prompt" ? "Copied" : "Copy"}
             </button>
           </div>
-          <details className="mt-1.5 text-[12px] text-slate-500">
-            <summary className="cursor-pointer hover:text-slate-700">If <code className="rounded bg-slate-100 px-1">/plugin</code> doesn't work in your environment</summary>
-            <div className="mt-1.5 text-slate-600">Open <code className="rounded bg-slate-100 px-1">~/.claude/settings.json</code> and merge in this block (keep your existing keys, just add these two):</div>
-            <div className="relative mt-1.5">
-              <pre className={codeBox}>{settings}</pre>
-              <button className={copyBtn} onClick={() => copy("settings", settings)}>
-                {copied === "settings" ? "Copied" : "Copy"}
-              </button>
+          <div className="mt-1.5 text-[12px] text-slate-500">
+            After Claude finishes, <span className="font-medium text-slate-700">fully quit Claude Code (Cmd+Q on Mac) and reopen it</span> so the new plugin loads.
+          </div>
+
+          <details className="mt-2 text-[12px] text-slate-500">
+            <summary className="cursor-pointer hover:text-slate-700">Alternative paths if you prefer to do it yourself</summary>
+            <div className="mt-2">
+              <div className="font-medium text-slate-700">A. Terminal slash commands</div>
+              <div className="mt-1 text-slate-600">If your Claude Code accepts <code className="rounded bg-slate-100 px-1">/plugin</code> commands (the interactive terminal CLI does; the desktop / IDE app does not), paste these into a chat one at a time:</div>
+              <div className="relative mt-1.5">
+                <pre className={codeBoxNoWrap}>{cmds}</pre>
+                <button className={copyBtn} onClick={() => copy("cmds", cmds)}>
+                  {copied === "cmds" ? "Copied" : "Copy"}
+                </button>
+              </div>
             </div>
-            <div className="mt-1.5 text-slate-600">Fully quit and reopen Claude Code afterwards.</div>
+            <div className="mt-3">
+              <div className="font-medium text-slate-700">B. Edit settings.json by hand</div>
+              <div className="mt-1 text-slate-600">Open <code className="rounded bg-slate-100 px-1">~/.claude/settings.json</code> (create it with <code className="rounded bg-slate-100 px-1">{"{}"}</code> if it doesn't exist) and merge these two keys into the top-level object, keeping any existing keys:</div>
+              <div className="relative mt-1.5">
+                <pre className={codeBoxNoWrap}>{settings}</pre>
+                <button className={copyBtn} onClick={() => copy("settings", settings)}>
+                  {copied === "settings" ? "Copied" : "Copy"}
+                </button>
+              </div>
+              <div className="mt-1.5 text-slate-600">Save, then fully quit and reopen Claude Code.</div>
+            </div>
           </details>
         </li>
 
         <li>
           <div className="font-medium text-slate-900">2. In any project, tell Claude:</div>
           <div className="relative mt-1.5">
-            <pre className={codeBox}>{"Apply our base design standard."}</pre>
+            <pre className={codeBoxNoWrap}>{"Apply our base design standard."}</pre>
             <button className={copyBtn} onClick={() => copy("apply", "Apply our base design standard.")}>
               {copied === "apply" ? "Copied" : "Copy"}
             </button>
