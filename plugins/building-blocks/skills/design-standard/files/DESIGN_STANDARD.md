@@ -953,6 +953,98 @@ Run this on any screen before calling it done:
 
 ---
 
+## 22. Whitespace & clean design — the anti-clutter standard **[Researched]**
+
+> §21 is the *mechanics* of spacing (which value goes where). This is the *generosity dial* — how much
+> air you give everything, and what you **remove**. A layout can be perfectly on-grid and still feel
+> cluttered; "clean" is mostly **active whitespace + ruthless removal**, not better alignment. If the UI
+> feels busy, this section is the fix.
+
+**Whitespace is the primary element, not the leftover.** Two axes:
+- **Macro** (between sections, columns, cards, page margins) vs **Micro** (line-height, label↔input,
+  padding). Macro sets the calm/airy feel; micro sets legibility.
+- **Active** (deliberately added to create emphasis, flow, grouping) vs **Passive** (incidental). The
+  declutter lever is **active macro whitespace** — adding it on purpose. *Space around an element is
+  emphasis: more space = more importance.*
+
+**Why it works (the honest version):** whitespace lowers **cognitive load** and matches how people
+actually use screens — they **scan, reading only ~20–28% of words** (NN/g). Decluttering dense content
+into scannable form raised recall **from 33% to 65%** (NN/g) — that's the citable headline, *not* the
+"+20%" myth below. Readable text wants **medium density** — neither cramped nor loose.
+
+> ⚠️ **Refuted — never repeat:** "whitespace increases comprehension by ~20% (Lin, 2004)." Lin himself
+> stated his paper "has nothing to do with whitespace." Both the number and citation are folklore. Use
+> NN/g's **33%→65% recall** and the Wichita State *direction* (comprehension ↑, reading speed ↓) instead.
+
+### 22.1 Space before lines — the #1 declutter move
+Borders/boxes/fills communicate **conceptual boundaries**; whitespace communicates **hierarchy &
+grouping**. A cluttered UI almost always reached for the heavy tool (lines, cards, zebra fills) to do a
+job space does more quietly. To separate two things, escalate **in this order, stopping at the first
+that works**: **(1) more space → (2) a different background tint → (3) a subtle shadow → (4) a border
+(last resort).** [Refactoring UI] The fastest declutter pass on any screen: delete every divider, card
+border, and stripe fill, then re-introduce hierarchy with *space + type size/weight/colour* — add a
+border back only where a true boundary survives.
+
+### 22.2 The clean-design moves, by impact
+1. **Use the TOP of the spacing scale, not the middle.** Start with *too much* whitespace and trim —
+   you land far airier. Macro gaps jump to 48/64/96, not 16/24.
+2. **Big section gaps — macro ≫ within.** Space *between* sections should be **~3–4×** the space
+   *within* them (96 between vs 24 inside). That ratio is what reads as "structured."
+3. **Cap the content width — never edge-to-edge.** Constrain prose to `--container-prose` (65ch) and let
+   the margins breathe. Edge-to-edge text is the #1 "premium → cheap" tell. Measure 45–75 chars (~66).
+4. **Generous body line-height 1.5–1.6** (WCAG 1.4.12 expects 1.5-capable); headings 1.1–1.25; ~1em
+   between paragraphs.
+5. **Fewer elements per view; one primary action per screen.** If everything is emphasised, nothing is.
+6. **Remove visual noise** — unnecessary borders, shadows, background fills, decorative icons, competing
+   colours. Each surviving element must earn its place.
+7. **Progressive disclosure** — defer advanced/rare options to a second screen; reveal on relevance.
+
+### 22.3 The squint test (your clutter detector)
+Blur/squint at the screen — detail drops out, only the strongest size/contrast/space survive. Then ask:
+*does the one thing that stands out match the one thing that should?* If several elements fight for
+attention, or the primary CTA doesn't pop, you've found clutter + broken hierarchy. [NN/g]
+
+### 22.4 When spacious is WRONG (density by app type)
+Whitespace optimises **focus & comprehension per screen**; density optimises **information & actions per
+screen**. Match the spacing to the job:
+
+| App type | Lean | Preset |
+|---|---|---|
+| Marketing / landing / onboarding / docs / consumer | **Spacious** | `data-density="spacious"` |
+| Forms & settings | Mostly spacious | spacious / default |
+| App content, most product screens | **Default** | (no attribute) |
+| Dashboards, analytics, data tables, ops / financial / admin / power-user | **Dense** | `data-density="compact"` |
+
+**Dense ≠ cluttered.** A data-dense view gets "clean" by **removing non-data ink** (gridlines, heavy
+borders, zebra fills, chart-junk — Tufte's data-ink ratio) and tightening *micro* spacing + alignment —
+**not** by inflating macro gaps. Dashboards: tight macro, ruthless ink discipline. Landing pages: the
+reverse. **Decision rule:** *Is the user reading/deciding, or comparing many values?* Reading → spacious.
+Comparing → dense + remove non-data ink.
+
+### 22.5 The saveable "spacious" preset (ships in `globals.css`)
+Set `data-density="spacious"` on `<html>` (or any wrapper) and the whole subtree re-skins — macro roles
+go ×~1.3–1.5 while legibility roles stay at their optimum. The concrete remap:
+
+| Role | Default | **Spacious** | ×  |
+|---|---|---|---|
+| Card padding (`--inset-card`) | 24 | **32** | 1.33 |
+| Field↔field (`--stack-default`) | 24 | **32** | 1.33 |
+| Group↔group (`--stack-group`) | 32 | **48** | 1.5 |
+| **Section↔section (`--stack-section`)** | 48 | **96** | 2.0 |
+| Control padding (`--inset-squish-*`) | 8 / 16 | **12 / 20** | ~1.4 |
+| Control height (`--control-md`) | 40 | **44** | 1.1 |
+| Body line-height | 1.5 | **1.6** (capped — never looser) | — |
+| Content width | as-is | **cap at 65ch** (narrower = more side air) | — |
+
+Three rules to keep with it: **(a) macro ≫ within** (section ≈ 3–4× group); **(b) space before lines**
+(§22.1); **(c) cap the well** (prose always wears `--container-prose`; only dense regions go edge-to-edge).
+
+> Pick the preset per app, not globally — a marketing site and an ops dashboard want opposite ends.
+> Sources: NN/g (cognitive load, legibility/recall 33→65%, scan-reading, squint test), Refactoring UI
+> (space before borders), Tufte (data-ink), UXPin/Baymard (measure), WCAG 1.4.12 (line-height).
+
+---
+
 ## Appendix A — Copy-paste token file (`app/globals.css`)
 
 > Neutral base values. Light + dark. A brand overrides the **color** tokens and the two **font**

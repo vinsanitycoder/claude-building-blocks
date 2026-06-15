@@ -138,9 +138,13 @@ The plugin repo is github.com/vinsanitycoder/claude-building-blocks. Marketplace
   );
 }
 
+const DENSITIES = ["default", "spacious", "compact"] as const;
+type Density = (typeof DENSITIES)[number];
+
 function DemoInner() {
   const [theme, setTheme] = useState<string>("slate");
   const [dark, setDark] = useState(false);
+  const [density, setDensity] = useState<Density>("default");
   const [sw, setSw] = useState(true);
   const [ck, setCk] = useState(true);
   const [radio, setRadio] = useState("daily");
@@ -166,14 +170,20 @@ function DemoInner() {
         <span className="mx-1" />
         <button onClick={() => setDark(false)} className={chip(!dark)}>Light</button>
         <button onClick={() => setDark(true)} className={chip(dark)}>Dark</button>
+        <span className="mx-1" />
+        <span className="mr-1 text-xs text-slate-400">Density</span>
+        {DENSITIES.map((d) => (
+          <button key={d} onClick={() => setDensity(d)} className={chip(density === d)}>{d}</button>
+        ))}
       </div>
 
       <div
         data-theme={theme}
+        data-density={density === "default" ? undefined : density}
         className={dark ? "dark" : ""}
         style={{
           background: "var(--color-background)", color: "var(--color-foreground)",
-          fontFamily: "var(--font-sans)", border: "1px solid var(--color-border)", borderRadius: 14, padding: "20px 22px",
+          fontFamily: "var(--font-sans)", border: "1px solid var(--color-border)", borderRadius: 14, padding: "var(--inset-card)",
         }}
       >
         <p style={lbl}>Buttons · variants, sizes, states</p>
@@ -295,12 +305,12 @@ function DemoInner() {
         </DialogFooter>
       </Dialog>
 
-      <ExtendedDemo theme={theme} dark={dark} />
+      <ExtendedDemo theme={theme} dark={dark} density={density} />
     </div>
   );
 }
 
-function ExtendedDemo({ theme, dark }: { theme: string; dark: boolean }) {
+function ExtendedDemo({ theme, dark, density }: { theme: string; dark: boolean; density: Density }) {
   const [slider, setSlider] = React.useState(62);
   const [page, setPage] = React.useState(3);
   const [date, setDate] = React.useState<string | null>("2026-06-15");
@@ -319,7 +329,7 @@ function ExtendedDemo({ theme, dark }: { theme: string; dark: boolean }) {
   }, []);
 
   return (
-    <div data-theme={theme} className={dark ? "dark" : ""} style={{
+    <div data-theme={theme} data-density={density === "default" ? undefined : density} className={dark ? "dark" : ""} style={{
       marginTop: 16, background: "var(--color-background)", color: "var(--color-foreground)",
       fontFamily: "var(--font-sans)", border: "1px solid var(--color-border)", borderRadius: 14, padding: "20px 22px",
     }}>

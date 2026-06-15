@@ -44,6 +44,12 @@ there's nothing to drift.
 - **Universal state cycle** — every actionable element does hover (lift+shadow) → press (compress) → release
   (spring back) → focus-visible (ring) → disabled → loading. Baked into `components.css`.
 - **One accent, used sparingly; deliberate font; one card/button pattern repeated** — the anti-"AI-slop" rules (§2).
+- **Clean = whitespace + removal, not just alignment (§22).** If a screen feels cluttered: separate with SPACE before
+  borders/boxes/fills (escalate space → bg tint → shadow → border-last); use the TOP of the scale for macro gaps
+  (section ≈ 3–4× group gap); cap content width (prose 65ch, never edge-to-edge); body line-height 1.5–1.6; one
+  primary action per screen; run the squint test. Offer `data-density="spacious"` for marketing/forms/content and
+  `data-density="compact"` for dashboards/tables — set per app, not globally. Refuted myth (never cite): the "+20%
+  comprehension from whitespace (Lin 2004)" claim — folklore; the real number is NN/g's 33%→65% recall from decluttering.
 - **Accessibility floors** — ≥44px touch targets, visible focus rings, WCAG AA contrast in **both** modes, never
   colour as the only signal.
 - **Sentence case everywhere; buttons are `verb + object`; errors say what+why+fix** (§18). Charts use the
