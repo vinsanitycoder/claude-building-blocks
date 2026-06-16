@@ -23,6 +23,15 @@ export interface BaseChartProps {
 }
 
 const DEFAULT_COLORS = Array.from({ length: 8 }, (_, i) => `var(--chart-${i + 1})`);
+// Resolve at the chart element (not :root) so the themed --color-primary applies; --chart-primary overrides.
+const CHART_PRIMARY = "var(--chart-primary, var(--color-primary))";
+/** Hybrid palette rule (§20): an explicit `colors` prop always wins; otherwise a SINGLE series follows
+ *  the brand (`--chart-primary`) so KPIs/StatCards feel on-theme, and MULTI-series uses the fixed,
+ *  colourblind-safe Okabe-Ito palette so series stay distinguishable. */
+function palette(colors: string[] | undefined, seriesCount: number): string[] {
+  if (colors) return colors;
+  return seriesCount <= 1 ? [CHART_PRIMARY] : DEFAULT_COLORS;
+}
 const PAD = { top: 12, right: 12, bottom: 24, left: 36 };
 
 function ticks(min: number, max: number, count = 4): number[] {
@@ -129,7 +138,8 @@ function tooltipPos(pos: { x: number; y: number } | null, width: number, height:
 }
 
 /** Line chart — over-time data. Hover shows the value at the nearest x. */
-export function LineChart({ series, labels, width = 480, height = 220, legend = true, formatValue, colors = DEFAULT_COLORS, ...rest }: BaseChartProps & React.HTMLAttributes<HTMLDivElement>) {
+export function LineChart({ series, labels, width = 480, height = 220, legend = true, formatValue, colors: colorsProp, ...rest }: BaseChartProps & React.HTMLAttributes<HTMLDivElement>) {
+  const colors = palette(colorsProp, series.length);
   const { min, max } = bounds(series);
   const plotW = width - PAD.left - PAD.right, plotH = height - PAD.top - PAD.bottom;
   const svgRef = React.useRef<SVGSVGElement>(null);
@@ -178,7 +188,8 @@ export function LineChart({ series, labels, width = 480, height = 220, legend = 
 
 /** Bar chart — categorical comparison. Bars ALWAYS start at zero (per the standard).
  *  Hover dims non-active categories, highlights the hovered group, and shows a tooltip. */
-export function BarChart({ series, labels, width = 480, height = 220, legend = true, formatValue, colors = DEFAULT_COLORS, ...rest }: BaseChartProps & React.HTMLAttributes<HTMLDivElement>) {
+export function BarChart({ series, labels, width = 480, height = 220, legend = true, formatValue, colors: colorsProp, ...rest }: BaseChartProps & React.HTMLAttributes<HTMLDivElement>) {
+  const colors = palette(colorsProp, series.length);
   const { min, max } = bounds(series);
   const plotW = width - PAD.left - PAD.right, plotH = height - PAD.top - PAD.bottom;
   const svgRef = React.useRef<SVGSVGElement>(null);
@@ -231,7 +242,8 @@ export function BarChart({ series, labels, width = 480, height = 220, legend = t
 }
 
 /** Area chart — magnitude over time. Hover behaves like LineChart. */
-export function AreaChart({ series, labels, width = 480, height = 220, legend = true, formatValue, colors = DEFAULT_COLORS, ...rest }: BaseChartProps & React.HTMLAttributes<HTMLDivElement>) {
+export function AreaChart({ series, labels, width = 480, height = 220, legend = true, formatValue, colors: colorsProp, ...rest }: BaseChartProps & React.HTMLAttributes<HTMLDivElement>) {
+  const colors = palette(colorsProp, series.length);
   const { min, max } = bounds(series);
   const plotW = width - PAD.left - PAD.right, plotH = height - PAD.top - PAD.bottom;
   const svgRef = React.useRef<SVGSVGElement>(null);
@@ -291,7 +303,7 @@ export interface SparklineProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 /** Tiny inline trend chart — sits beside a number like 42 ↗. */
-export function Sparkline({ data, width = 80, height = 24, color = "var(--chart-1)", className = "", ...rest }: SparklineProps) {
+export function Sparkline({ data, width = 80, height = 24, color = "var(--chart-primary, var(--color-primary))", className = "", ...rest }: SparklineProps) {
   if (!data.length) return null;
   const min = Math.min(...data), max = Math.max(...data);
   const range = max - min || 1;

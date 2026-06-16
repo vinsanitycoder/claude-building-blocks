@@ -69,9 +69,11 @@
   --z-dropdown:1000; --z-sticky:1020; --z-fixed:1030; --z-drawer-scrim:1040; --z-drawer:1045;
   --z-modal-scrim:1050; --z-modal:1055; --z-popover:1070; --z-tooltip:1080; --z-toast:1090;
 
-  /* chart palette (Okabe-Ito, colourblind-safe; brand-agnostic, shared across themes) */
+  /* chart palette (Okabe-Ito, colourblind-safe; brand-agnostic, shared across themes — for MULTI-series) */
   --chart-1:#009E73; --chart-2:#0072B2; --chart-3:#D55E00; --chart-4:#CC79A7;
   --chart-5:#E69F00; --chart-6:#56B4E9; --chart-7:#F0E442; --chart-8:#999999;
+  /* SINGLE-series charts + sparklines follow the brand: they read `var(--chart-primary, var(--color-primary))`,
+     so they re-skin per data-theme by default. Set --chart-primary explicitly only to override that. */
 
   /* fonts — a font pack (fonts.ts) overrides --font-sans / --font-display; here = system fallback */
   --font-sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
