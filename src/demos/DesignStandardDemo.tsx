@@ -82,22 +82,28 @@ export function DesignStandardDemo() {
 function InstallPanel() {
   const [copied, setCopied] = React.useState<string | null>(null);
   async function copy(label: string, text: string) {
-    try { await navigator.clipboard.writeText(text); setCopied(label); setTimeout(() => setCopied(null), 1500); } catch {}
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Fallback for contexts without the async clipboard API (or when unfocused).
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {}
+    }
+    setCopied(label);
+    setTimeout(() => setCopied(null), 1500);
   }
-  // The one-paste install prompt — Claude has filesystem tools, so it can
-  // create/merge ~/.claude/settings.json itself. No JSON editing for the user.
-  const installPrompt = `Please install our team's design-standard plugin so I can use it on any project.
-
-What I need you to do:
-1. Open my Claude Code settings at ~/.claude/settings.json. Create the file with an empty JSON object {} if it does not exist.
-2. Merge in (do NOT replace) these two keys, preserving every existing key:
-   - "extraKnownMarketplaces": { "team-blocks": { "source": { "source": "github", "repo": "vinsanitycoder/claude-building-blocks" } } }
-   - "enabledPlugins": ["building-blocks@team-blocks"]   (if the key already exists, ADD this entry to the array without removing the others)
-3. Save the file.
-4. Tell me to fully quit Claude Code (Cmd+Q on Mac, then reopen).
-5. After I reopen, tell me how to verify it worked: I should be able to ask "what skills do you have available?" and see "design-standard" in the list.
-
-The plugin repo is github.com/vinsanitycoder/claude-building-blocks. Marketplace name: team-blocks. Plugin name: building-blocks.`;
+  // One-paste install command. Installs the skills into ~/.claude/skills/, which
+  // BOTH the Claude desktop app and the terminal CLI read. (The old settings.json /
+  // marketplace route only works on the CLI — it silently no-ops on the desktop app —
+  // so it's demoted to the CLI-only alternative in the <details> below.)
+  const installCmd =
+    'T=$(mktemp -d); curl -fsSL https://github.com/vinsanitycoder/claude-building-blocks/archive/refs/heads/main.tar.gz | tar -xz -C "$T" && mkdir -p ~/.claude/skills && for s in design-standard ai-model-settings data-importer team-activity; do rm -rf ~/.claude/skills/$s; cp -R "$T/claude-building-blocks-main/plugins/building-blocks/skills/$s" ~/.claude/skills/$s; done && rm -rf "$T" && echo "✅ Done — fully quit Claude (Cmd+Q) and reopen."';
   const cmds = `/plugin marketplace add vinsanitycoder/claude-building-blocks
 /plugin install building-blocks@team-blocks`;
   const settings = `{
@@ -108,43 +114,26 @@ The plugin repo is github.com/vinsanitycoder/claude-building-blocks. Marketplace
   },
   "enabledPlugins": ["building-blocks@team-blocks"]
 }`;
-  // One-click path: a claude-cli:// deep link opens Claude Code with the install
-  // steps PRE-FILLED (it never auto-runs — the user reads them and presses Enter).
-  // Works from this live web page; needs Claude Code v2.1.91+ and one prior launch
-  // so the OS handler is registered. Copy-prompt below is the always-works fallback.
-  const deepLink = `claude-cli://open?q=${encodeURIComponent(installPrompt)}`;
-  const codeBox = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre-wrap overflow-x-auto";
-  const codeBoxNoWrap = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre overflow-x-auto";
+  const codeBoxNoWrap = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 pr-16 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre overflow-x-auto";
   const copyBtn = "absolute top-2 right-2 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50";
   return (
     <div className="mb-5 rounded-xl border-2 border-slate-900 bg-white p-4">
       {/* HERO: one-paste install. The only thing colleagues should focus on first. */}
       <div className="mb-2 flex items-center gap-2">
         <span className="inline-flex h-5 items-center rounded-full bg-slate-900 px-2 text-[10px] font-semibold uppercase tracking-wide text-white">Install</span>
-        <h3 className="text-base font-semibold text-slate-900">One-paste install — Claude does it for you</h3>
+        <h3 className="text-base font-semibold text-slate-900">One-paste install — works on desktop &amp; CLI</h3>
       </div>
       <p className="mb-3 text-[13px] text-slate-600">
-        Click <span className="font-medium text-slate-800">Open in Claude Code</span> below — it launches the app with these steps pre-filled, so you just read them and press Enter. No terminal commands, no JSON editing: Claude has filesystem access and will create or merge your settings file for you, asking before it changes anything. After it finishes, <span className="font-medium text-slate-800">fully quit Claude Code (Cmd+Q on Mac) and reopen it</span>.
+        Open the <span className="font-medium text-slate-800">Terminal</span> app, paste the command below, and press Enter. It installs the skills into <code className="rounded bg-slate-100 px-1 font-mono text-[12px]">~/.claude/skills/</code> — which both the Claude desktop app and the terminal CLI read. Then <span className="font-medium text-slate-800">fully quit Claude (Cmd+Q on Mac) and reopen it</span>.
       </p>
       <div className="relative">
-        <pre className={codeBox}>{installPrompt}</pre>
-      </div>
-      <div className="mt-2.5 flex flex-wrap items-center gap-2">
-        <a
-          href={deepLink}
-          className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3.5 py-1.5 text-[13px] font-semibold text-white hover:bg-slate-700"
-        >
-          <span aria-hidden>⚡</span> Open in Claude Code
-        </a>
-        <button
-          className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-700 hover:bg-slate-50"
-          onClick={() => copy("prompt", installPrompt)}
-        >
-          {copied === "prompt" ? "Copied ✓" : "Copy prompt"}
+        <pre className={codeBoxNoWrap}>{installCmd}</pre>
+        <button className={copyBtn} onClick={() => copy("cmd", installCmd)}>
+          {copied === "cmd" ? "Copied ✓" : "Copy"}
         </button>
       </div>
       <p className="mt-1.5 text-[11px] leading-4 text-slate-400">
-        <span className="font-medium text-slate-500">Open in Claude Code</span> needs Claude Code v2.1.91+ and one prior launch (so the link is registered). If the button does nothing, use <span className="font-medium text-slate-500">Copy prompt</span> and paste it into a new chat — same result.
+        No Git or setup needed — <code className="rounded bg-slate-100 px-1 font-mono">curl</code> is built into macOS. After reopening, ask Claude <span className="font-medium text-slate-500">“what skills do you have?”</span> — you should see <span className="font-medium text-slate-500">design-standard</span>.
       </p>
 
       {/* USAGE — what to say after the plugin is installed. */}
@@ -168,7 +157,7 @@ The plugin repo is github.com/vinsanitycoder/claude-building-blocks. Marketplace
 
       {/* ALTERNATIVES — collapsed so they don't distract the happy path. */}
       <details className="mt-3 text-[12px] text-slate-500">
-        <summary className="cursor-pointer hover:text-slate-700">Prefer to install it yourself? Two manual paths</summary>
+        <summary className="cursor-pointer hover:text-slate-700">CLI-only alternatives (terminal Claude Code — these do nothing in the desktop app)</summary>
         <div className="mt-2">
           <div className="font-medium text-slate-700">A. Terminal slash commands</div>
           <div className="mt-1 text-slate-600">If your Claude Code accepts <code className="rounded bg-slate-100 px-1">/plugin</code> commands (the interactive terminal CLI does; the desktop / IDE app does not), paste these into a chat one at a time:</div>
