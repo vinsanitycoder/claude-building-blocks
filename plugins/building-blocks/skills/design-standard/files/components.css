@@ -539,7 +539,8 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-field__error { font-size: var(--text-xs); color: var(--color-destructive); }
 
 /* NumberInput — −/+ steppers framing a content-sized field */
-.ds-number { display: inline-flex; align-items: stretch; border: 1px solid var(--color-input);
+.ds-number { display: inline-flex; align-items: stretch; align-self: start; width: fit-content;
+  border: 1px solid var(--color-input);
   border-radius: calc(var(--radius) - 2px); background: var(--color-background); overflow: hidden;
   transition: border-color var(--duration-fast), box-shadow var(--duration-fast); }
 .ds-number:focus-within { border-color: var(--color-ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 25%, transparent); }
