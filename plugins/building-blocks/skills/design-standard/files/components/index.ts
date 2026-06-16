@@ -120,6 +120,10 @@ export type { BannerProps, BannerVariant } from "./Banner";
 export { OtpInput } from "./OtpInput";
 export type { OtpInputProps } from "./OtpInput";
 
+// — notifications (in-app inbox) —
+export { NotificationCenter } from "./NotificationCenter";
+export type { NotificationCenterProps, NotificationItem, NotificationSeverity } from "./NotificationCenter";
+
 // — kanban (drag-and-drop board, dnd-kit) —
 export { KanbanBoard, KanbanCardContent } from "./KanbanBoard";
 export type { KanbanBoardProps, KanbanColumn, KanbanCard, CardMoveEvent, ColumnId, CardId, KanbanCardContentProps, KanbanLabel } from "./KanbanBoard";

@@ -1045,6 +1045,78 @@ Three rules to keep with it: **(a) macro ≫ within** (section ≈ 3–4× group
 
 ---
 
+## 23. Notifications (web + mobile) **[Researched]**
+
+How we tell users something happened — **without** stealing focus, over-interrupting, or relying on
+colour alone. Pick the surface by scoring three axes: **urgency** (can it wait?), **persistence** (must
+it survive a page change / be re-findable?), and **action needed** (must the user act?).
+
+**23.1 The six surfaces + decision rule**
+
+| Surface | Lives | Use when | Don't |
+|---|---|---|---|
+| **Toast / snackbar** | Transient, auto-dismiss | Low-priority confirmation of the user's own action ("Saved") | Put the only/essential action here; use for errors needing a decision |
+| **Inline alert** (§ Core) | In content flow | Feedback tied to a specific element/field; validation | Global/page-level events |
+| **Banner** | Page-level, until resolved | System-wide state (outage, trial expiring, "sample data") | One-off confirmations |
+| **Notification center** (inbox) | Persistent, async | Events that happen away from focus, readable later (mentions, assignments, status) | Instant in-context feedback |
+| **Badge / count** | Persistent summary | Signal *that* unread exists + how many | Convey the content itself |
+| **System / OS push** | OS-level | Re-engage when the app is closed; time-critical | Marketing dressed as urgent |
+
+- Urgent **+ must act + blocking** → modal/inline (never a toast).
+- Urgent **+ informational** → banner (web) / time-sensitive push (mobile).
+- Low-urgency confirmation, no action → toast.
+- Async, re-findable, no immediate action → notification center (+ badge).
+- App closed, worth re-engaging → push.
+
+**23.2 Web rules**
+- **Toast:** one corner, consistent (bottom-center/bottom-left is the Material default). One at a time, or
+  cap the visible stack at ~3. Auto-dismiss **4–10s** for no-action toasts (rough rule: ~3s + ~1s per 3
+  words); **never auto-dismiss** a toast that carries an action — keep it until acted/dismissed.
+  Pause-on-hover/focus; swipe + keyboard dismiss.
+- **Live regions (the rule most teams miss):** info/success → `role="status"` / `aria-live="polite"`
+  (waits for a pause). Errors/urgent → `role="alert"` / `aria-live="assertive"` (interrupts). The live
+  region must exist in the DOM **before** content is injected, and notifications must **never steal focus**.
+- **Notification center:** bell + unread badge **capped to prevent layout shift** — exact to 9, then "9+"
+  (or "99+" high-volume). Grouped list (Today / Earlier, or by source) with per-group counts; item anatomy
+  = source/severity icon · actionable title · body snippet · **relative timestamp** · unread marker (dot +
+  weight, visually distinct from read) · optional inline action → deep-link. States: unread (click marks
+  read), empty ("You're all caught up"), loading (skeleton rows). Prefer real-time (WebSocket) with polling
+  fallback; announce new items via `aria-live="polite"`.
+- **Web Push:** **never prompt on load.** Show your own soft pre-permission prompt *in context, after value*
+  (ideally user-triggered); only then call `Notification.requestPermission()`. On deny you can't re-prompt —
+  fall back to the in-app inbox + email. Respect frequency caps / quiet hours.
+
+**23.3 Mobile rules**
+- **Android — channels + importance:** every notification belongs to a user-controllable **channel**.
+  `HIGH` = sound + heads-up; `DEFAULT` = sound, no heads-up; `LOW` = no sound; `MIN` = silent. Split
+  categories into separate channels so users tune each.
+- **iOS — interruption levels:** Passive (list only) · Active (default) · Time-Sensitive (breaks through
+  Focus — security/delivery) · Critical (bypasses mute/Focus; Apple entitlement, safety only).
+- **Permission priming:** iOS gives you **one shot** at the native dialog — show a pre-permission primer
+  first; if they decline the primer you preserve the real prompt. Best timing is contextual / user-triggered,
+  not first launch (opt-in jumps ~when user-initiated).
+- App-icon **badge** for count; **group/thread** by source; rich notifications (image, inline actions);
+  respect **DND/Focus** + quiet hours; **deep-link** every notification to the exact destination.
+- **Fatigue:** batch/digest low-priority events; cap frequency; expose **per-category × per-channel**
+  (email/push/in-app) preferences.
+
+**23.4 Cross-cutting (web + mobile)**
+- **Anatomy:** source icon · title (actionable, specific — "Invoice #1042 approved", not "Success") · body ·
+  **relative timestamp** ("2m ago") · action(s).
+- **Severity = colour + icon + text, never colour alone** (WCAG 1.4.1): info ℹ / success ✓ / warning ! /
+  critical ✕.
+- **Preference center:** per-category × per-channel matrix; honour `prefers-reduced-motion` (fade, not
+  slide); don't interrupt for low-priority.
+
+> Implemented: `Toast`, `Alert` (inline), `Banner`, and `NotificationCenter` (bell + capped badge → grouped
+> inbox with unread/empty/loading states). Push + mobile channels are platform integrations, not components —
+> follow the rules above in the native layer.
+> Sources: Material 3 (snackbar), Atlassian (messages), W3C ARIA22 / Sara Soueidan (live regions), web.dev
+> (push permission UX), Android channels, Apple HIG / WWDC21 (interruption levels), WCAG 1.4.1, PatternFly
+> (notification drawer), NN/g (timing).
+
+---
+
 ## Appendix A — Copy-paste token file (`app/globals.css`)
 
 > Neutral base values. Light + dark. A brand overrides the **color** tokens and the two **font**

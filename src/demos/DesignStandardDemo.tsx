@@ -18,8 +18,9 @@ import {
   Field, NumberInput, SegmentedControl, Popover, HoverCard, Combobox, DatePicker,
   EmptyState, StatCard, DataTable, FileUpload, TagInput,
   TreeView, InlineEdit, ContextMenu, Resizable, Toolbar, ToggleGroup, Timeline, Banner, OtpInput,
-  KanbanBoard, KanbanCardContent,
+  KanbanBoard, KanbanCardContent, NotificationCenter,
 } from "../../plugins/building-blocks/skills/design-standard/files/components";
+import type { NotificationItem } from "../../plugins/building-blocks/skills/design-standard/files/components";
 import type { KanbanColumn, KanbanCard, CardMoveEvent } from "../../plugins/building-blocks/skills/design-standard/files/components";
 
 const THEMES = [
@@ -95,6 +96,11 @@ The plugin repo is github.com/vinsanitycoder/claude-building-blocks. Marketplace
   },
   "enabledPlugins": ["building-blocks@team-blocks"]
 }`;
+  // One-click path: a claude-cli:// deep link opens Claude Code with the install
+  // steps PRE-FILLED (it never auto-runs — the user reads them and presses Enter).
+  // Works from this live web page; needs Claude Code v2.1.91+ and one prior launch
+  // so the OS handler is registered. Copy-prompt below is the always-works fallback.
+  const deepLink = `claude-cli://open?q=${encodeURIComponent(installPrompt)}`;
   const codeBox = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre-wrap overflow-x-auto";
   const codeBoxNoWrap = "block w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-[12px] leading-5 font-mono text-slate-800 whitespace-pre overflow-x-auto";
   const copyBtn = "absolute top-2 right-2 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50";
@@ -106,17 +112,28 @@ The plugin repo is github.com/vinsanitycoder/claude-building-blocks. Marketplace
         <h3 className="text-base font-semibold text-slate-900">One-paste install — Claude does it for you</h3>
       </div>
       <p className="mb-3 text-[13px] text-slate-600">
-        Open Claude Code, start a new chat, and paste the message below. Claude has filesystem access and will create or merge your settings file for you — no terminal commands, no JSON editing. Claude will ask before changing the file, so you stay in control. After it finishes, <span className="font-medium text-slate-800">fully quit Claude Code (Cmd+Q on Mac) and reopen it</span>.
+        Click <span className="font-medium text-slate-800">Open in Claude Code</span> below — it launches the app with these steps pre-filled, so you just read them and press Enter. No terminal commands, no JSON editing: Claude has filesystem access and will create or merge your settings file for you, asking before it changes anything. After it finishes, <span className="font-medium text-slate-800">fully quit Claude Code (Cmd+Q on Mac) and reopen it</span>.
       </p>
       <div className="relative">
         <pre className={codeBox}>{installPrompt}</pre>
+      </div>
+      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+        <a
+          href={deepLink}
+          className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3.5 py-1.5 text-[13px] font-semibold text-white hover:bg-slate-700"
+        >
+          <span aria-hidden>⚡</span> Open in Claude Code
+        </a>
         <button
-          className="absolute top-2 right-2 rounded-md bg-slate-900 px-3 py-1 text-[12px] font-semibold text-white hover:bg-slate-700"
+          className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-700 hover:bg-slate-50"
           onClick={() => copy("prompt", installPrompt)}
         >
           {copied === "prompt" ? "Copied ✓" : "Copy prompt"}
         </button>
       </div>
+      <p className="mt-1.5 text-[11px] leading-4 text-slate-400">
+        <span className="font-medium text-slate-500">Open in Claude Code</span> needs Claude Code v2.1.91+ and one prior launch (so the link is registered). If the button does nothing, use <span className="font-medium text-slate-500">Copy prompt</span> and paste it into a new chat — same result.
+      </p>
 
       {/* USAGE — what to say after the plugin is installed. */}
       <div className="mt-4 border-t border-slate-100 pt-3 text-[13px] text-slate-800">
@@ -413,6 +430,16 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
   const [view, setView] = React.useState<string | null>("board");
   const [otp, setOtp] = React.useState("");
   const [bannerOpen, setBannerOpen] = React.useState(true);
+  const [notifs, setNotifs] = React.useState<NotificationItem[]>(() => {
+    const now = Date.now();
+    return [
+      { id: "n1", group: "Today", severity: "critical", title: "Filing overdue: 1702Q", body: "Princess Ventures Q3 statutory deadline passed.", timestamp: now - 7 * 60 * 1000, actionLabel: "Open obligation", onAction: () => {} },
+      { id: "n2", group: "Today", severity: "success", title: "Invoice 0012 filed", body: "Cathlyn marked it complete with proof of filing.", timestamp: now - 52 * 60 * 1000 },
+      { id: "n3", group: "Today", severity: "info", title: "Jaz mentioned you", body: "“Can you review the Beacon Co engagement letter?”", timestamp: now - 3 * 60 * 60 * 1000, read: true },
+      { id: "n4", group: "Earlier", severity: "warning", title: "Storage at 92%", body: "Archive older documents to free space.", timestamp: now - 28 * 60 * 60 * 1000 },
+      { id: "n5", group: "Earlier", severity: "info", title: "Nightly backup completed", timestamp: now - 30 * 60 * 60 * 1000, read: true },
+    ];
+  });
   const { toast } = useToast();
 
   const COUNTRIES = [
@@ -744,6 +771,14 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
           </Toolbar>
           <p style={{ ...lbl, marginTop: 20 }}>Verification code</p>
           <OtpInput length={6} value={otp} onChange={setOtp} onComplete={(c) => toast({ title: `Code: ${c}` })} />
+          <p style={{ ...lbl, marginTop: 20 }}>Notification center · click the bell</p>
+          <NotificationCenter
+            align="start"
+            items={notifs}
+            onMarkRead={(id) => setNotifs((ns) => ns.map((n) => (n.id === id ? { ...n, read: true } : n)))}
+            onMarkAllRead={() => setNotifs((ns) => ns.map((n) => ({ ...n, read: true })))}
+            onItemClick={(it) => toast({ title: `Opened: ${String(it.title)}` })}
+          />
         </div>
       </div>
 
