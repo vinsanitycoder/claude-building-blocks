@@ -29,6 +29,10 @@ there's nothing to drift.
 3. **Type (optional, Next.js):** apply a pack from `fonts.ts` (only Signal needs `npm i geist`).
 4. **Components:** use `components/*` directly (any framework), OR in a Tailwind/shadcn app adopt
    `tailwind.config.ts` and your existing components re-skin to the tokens automatically.
+   Every component is **zero-dependency** except **`KanbanBoard`**, which needs dnd-kit —
+   `npm i @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities`. It's controlled + backend-agnostic:
+   feed `columns`/`cards`, handle one `onCardMove` callback (emits the moved card + target column/index
+   + neighbour ids so you compute a fractional/LexoRank rank). Keyboard-operable with live announcements.
 5. **Brand last:** apply the brand skill's overrides (colour/font/logo/radius only) after the above.
 
 ## The rules that matter most (full detail in DESIGN_STANDARD.md)

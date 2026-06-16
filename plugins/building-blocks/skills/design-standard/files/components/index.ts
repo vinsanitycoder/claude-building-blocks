@@ -119,3 +119,7 @@ export { Banner } from "./Banner";
 export type { BannerProps, BannerVariant } from "./Banner";
 export { OtpInput } from "./OtpInput";
 export type { OtpInputProps } from "./OtpInput";
+
+// — kanban (drag-and-drop board, dnd-kit) —
+export { KanbanBoard } from "./KanbanBoard";
+export type { KanbanBoardProps, KanbanColumn, KanbanCard, CardMoveEvent, ColumnId, CardId } from "./KanbanBoard";

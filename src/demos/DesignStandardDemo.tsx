@@ -18,7 +18,9 @@ import {
   Field, NumberInput, SegmentedControl, Popover, HoverCard, Combobox, DatePicker,
   EmptyState, StatCard, DataTable, FileUpload, TagInput,
   TreeView, InlineEdit, ContextMenu, Resizable, Toolbar, ToggleGroup, Timeline, Banner, OtpInput,
+  KanbanBoard,
 } from "../../plugins/building-blocks/skills/design-standard/files/components";
+import type { KanbanColumn, KanbanCard, CardMoveEvent } from "../../plugins/building-blocks/skills/design-standard/files/components";
 
 const THEMES = [
   ["slate", "#1c2024"], ["ocean", "#0d74ce"], ["forest", "#218358"], ["iris", "#5753c6"],
@@ -762,6 +764,10 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
         </div>
       </div>
 
+      <Separator style={{ margin: "24px 0" }} />
+      <p style={lbl}>Kanban board · drag cards (grab the ⠿ handle) — or keyboard: Tab to a handle, Space, arrows, Space</p>
+      <KanbanDemo />
+
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} side="right" size="md">
         <DrawerHeader>Filter results</DrawerHeader>
         <DrawerBody>
@@ -789,5 +795,56 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
         ]}
       />
     </div>
+  );
+}
+
+function KanbanDemo() {
+  const initialCards: Record<string, KanbanCard> = {
+    c1: { id: "c1", title: "Wire OAuth callback", tag: "Eng", points: 3 },
+    c2: { id: "c2", title: "Q3 invoice batch", tag: "Finance", points: 2 },
+    c3: { id: "c3", title: "Onboard Beacon Co", tag: "Ops", points: 5 },
+    c4: { id: "c4", title: "Fix timezone bug", tag: "Eng", points: 2 },
+    c5: { id: "c5", title: "Draft engagement letter", tag: "Legal", points: 1 },
+    c6: { id: "c6", title: "Reconcile R2 backups", tag: "Ops", points: 3 },
+  };
+  const [cards] = React.useState(initialCards);
+  const [columns, setColumns] = React.useState<KanbanColumn[]>([
+    { id: "todo", title: "To do", cardIds: ["c1", "c2", "c3"] },
+    { id: "doing", title: "In progress", cardIds: ["c4", "c5"], wipLimit: 2 },
+    { id: "done", title: "Done", cardIds: ["c6"] },
+  ]);
+
+  function move(e: CardMoveEvent) {
+    setColumns((cols) => {
+      // remove from source, insert into target at toIndex
+      const stripped = cols.map((c) => ({ ...c, cardIds: c.cardIds.filter((id) => id !== e.cardId) }));
+      return stripped.map((c) =>
+        c.id === e.toColumnId
+          ? { ...c, cardIds: [...c.cardIds.slice(0, e.toIndex), e.cardId, ...c.cardIds.slice(e.toIndex)] }
+          : c
+      );
+    });
+  }
+
+  const tagColor: Record<string, string> = { Eng: "var(--chart-2)", Finance: "var(--chart-1)", Ops: "var(--chart-3)", Legal: "var(--chart-4)" };
+
+  return (
+    <KanbanBoard
+      columns={columns}
+      cards={cards}
+      onCardMove={move}
+      renderCard={(card) => (
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: "var(--color-foreground)", marginBottom: 6 }}>{String(card.title)}</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--color-muted-foreground)" }}>
+              <span style={{ width: 8, height: 8, borderRadius: 999, background: tagColor[String(card.tag)] ?? "var(--color-muted-foreground)" }} />
+              {String(card.tag)}
+            </span>
+            <span style={{ fontSize: 12, fontVariantNumeric: "tabular-nums", color: "var(--color-muted-foreground)" }}>{String(card.points)} pts</span>
+          </div>
+        </div>
+      )}
+    />
   );
 }
