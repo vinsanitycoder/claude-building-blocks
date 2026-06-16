@@ -43,6 +43,21 @@ there's nothing to drift.
   `label↔input (4) < field↔field (24) < group↔group (32) < section↔section (48)` — inner gap always smaller than
   outer. **Match field width to expected input** (postcode ~5ch, year 4ch — never full-width). Controls 40px default
   (44 touch); cards 16–24 padding; containers capped (app 1280 / form 480 / prose 65ch). Full sizing tables in §21.
+- **One spacing system per container — never ad-hoc margins (the #1 recurring spacing bug).** Space a
+  container's children with ONE mechanism: a single `gap` on the flex/grid parent, OR the §21 stack roles —
+  not scattered per-element `margin`/`marginBottom`. Mixing margins with a parent gap (or with each other) is
+  exactly what makes spacing read as "random / placed by accident". A label hugs its control (tight); sibling
+  groups get the container's single gap; a **framed surface** (card/panel/example) gets token padding (≥16–24px)
+  so content never touches the border. (See DESIGN_STANDARD §21.13.)
+- **Only reference spacing steps that EXIST — an undefined CSS var silently collapses to 0.** The scale is
+  `--space-{0,1,2,3,4,5,6,8,10,12,16,20,24}` — there is **no** `--space-7/9/11/…`. `padding: var(--space-7)` is an
+  invalid declaration, so the property falls back to its initial value (0) with **no error** — boxes lose all
+  padding silently. Use only real steps; when a var may be absent, give a fallback (`var(--x, 16px)`). After
+  styling, confirm the **computed** value (`getComputedStyle`) is what you intended — don't assume.
+- **Spacing is a VISUAL judgement — verify by looking, at a real width, before calling it done.** Reading the
+  code/tokens is not verification. Render at ≥1280px and look at the composition, in **both** light and dark.
+  Never trust a single measurement: a preview viewport can collapse (e.g. to ~1px) and inflate every number. If
+  you haven't seen it rendered correctly, it isn't done.
 - **Semantic tokens only** — components reference `--color-*` / `--space-*` / `--radius` / motion tokens; never a
   hard-coded hex/px/ms. That's what lets one base re-skin per brand.
 - **Universal state cycle** — every actionable element does hover (lift+shadow) → press (compress) → release
@@ -100,6 +115,16 @@ real refactor — keep the list short and treat it as a checklist:
    not `border-slate-100` / `divide-slate-50`. They must travel with dark mode.
 10. **Verify in BOTH light and dark mode after refactoring.** Most palette leaks are invisible in light mode and
     glaring in dark mode (a `bg-slate-100` looks fine on white but jumps off a dark page).
+11. **One spacing system per container — no ad-hoc margins.** Space a container's children with a single parent
+    `gap` (or the §21 stack roles), not scattered `marginBottom`. A label hugs its control; a framed surface
+    (card/panel/example) gets token padding (≥16px) so content never touches the edge. Mixed margins + gaps is
+    the "random spacing" look — group label+content as one unit, then space groups with the one gap.
+12. **No undefined spacing tokens.** `var(--space-7 / 9 / 11 / 13 / 14 / 15 / 17–19 / 21–23)` do NOT exist (scale:
+    0–6, 8, 10, 12, 16, 20, 24) and silently resolve to **0** — boxes lose padding with no error. Grep for them;
+    give a fallback (`var(--x, 16px)`) when a var may be absent.
+13. **Verify spacing visually at ≥1280px, in light AND dark.** Token values alone don't prove the composition is
+    right; screenshot/look. A collapsed (≈1px) preview viewport lies about every measurement — check `innerWidth`
+    first.
 
 ### Quick search to catch leaks
 After refactoring, ripgrep the touched files for the patterns above:
@@ -109,9 +134,12 @@ rg -n \
   -e 'bg-(slate|gray|zinc|stone|neutral|green|rose|red|blue|amber|yellow|emerald|teal)-[0-9]' \
   -e 'text-(slate|gray|zinc|stone|neutral)-[0-9]' \
   -e 'border-(slate|gray)-[0-9]' \
+  -e 'var\(--space-(7|9|11|13|14|15|17|18|19|21|22|23)\)' \
   -e '<select ' \
   files/
 ```
+
+The `--space-7` pattern catches the silent-zero-padding trap. A clean adoption returns exit code 1.
 
 A clean adoption returns ripgrep exit code 1 with no output. Treat any hits as bugs.
 

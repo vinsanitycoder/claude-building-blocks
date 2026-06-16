@@ -951,6 +951,42 @@ Run this on any screen before calling it done:
 6. **Containers capped** (app 1280 / form 480 / prose 65ch) — content isn't a full-width wall of text.
 7. **Verified at mobile (375px) and desktop** — spacing compresses ~50–66% on mobile, structure holds.
 
+### 21.13 Spacing discipline & verification (why "random spacing" keeps happening — and how to stop it)
+The proximity scale (§21.3) tells you *what* the gaps should be. These four rules are *how* to apply them
+without the layout drifting back to "placed by accident." Each one is a real, repeated failure mode.
+
+1. **One spacing mechanism per container — never ad-hoc margins.** Inside any container (card, panel, form,
+   section, example frame), space its children with **one** thing: a single `gap` on a flex/grid parent, or the
+   `--stack-*` roles. Do **not** sprinkle per-element `margin-bottom`. Mixing margins with a parent `gap` (or
+   mixing different margins with each other) is the single biggest cause of uneven, "scattered" spacing —
+   especially when example/demo code written for one layout is dropped into another. **Pattern:** group a label
+   with its content as one unit (label hugs content at `--stack-tight`, ~4–12px), then space the *groups* with
+   the container's single gap (`--stack-default`, ~24px). A flex column with `gap` + grouped label/content is
+   self-correcting; scattered margins are not.
+
+2. **A framed surface always has padding — and padding must come from a token that EXISTS.** A card / panel /
+   example frame gets inset padding (`--inset-card`, 16–24px) so content never touches the border. **Trap:** the
+   scale has gaps — `--space-{0,1,2,3,4,5,6,8,10,12,16,20,24}`, with **no** `--space-7/9/11/13/14/15/17–19/21–23`.
+   Writing `padding: var(--space-7)` is an *invalid declaration*, so the property silently falls back to its
+   initial value (**0**) — no error, no warning, and every box loses its padding. Use only real steps; reference
+   the **role tokens** (`--inset-*`, `--stack-*`) which are guaranteed to exist; and when a custom var might be
+   absent, always give a fallback: `var(--x, 16px)`. After styling, read back the **computed** value
+   (`getComputedStyle(el).padding`) and confirm it's what you intended — never assume an unfamiliar token resolved.
+
+3. **Spacing is a visual judgement — it is not done until you have LOOKED at it.** Reading code and token values
+   is not verification; spacing only reads as right or wrong when rendered. Before calling a layout finished,
+   render it at a real desktop width (**≥1280px**) and look at the composition, in **both** light and dark. Never
+   trust a single measurement in isolation — a preview/headless viewport can collapse (e.g. to ~1px wide), which
+   reflows everything tall and inflates every height/offset you read. Check the viewport width first; if you can't
+   see it rendered correctly, it isn't done.
+
+4. **Don't crowd disparate controls into one row.** Controls of very different heights (a tall segmented control
+   next to small checkboxes; text links beside buttons) jammed into one flex row read as lopsided. Give each kind
+   its own labelled group, or align them deliberately — uniform-height items per row.
+
+> These map to the SKILL.md "rules that matter most" + Consistency-audit items 11–13, and the ripgrep leak-grep
+> includes the undefined-`--space-N` pattern so the silent-zero-padding trap is caught mechanically.
+
 ---
 
 ## 22. Whitespace & clean design — the anti-clutter standard **[Researched]**
