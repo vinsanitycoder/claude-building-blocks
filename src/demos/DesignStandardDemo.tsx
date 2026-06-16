@@ -19,6 +19,7 @@ import {
   EmptyState, StatCard, DataTable, FileUpload, TagInput,
   TreeView, InlineEdit, ContextMenu, Resizable, Toolbar, ToggleGroup, Timeline, Banner, OtpInput,
   KanbanBoard, KanbanCardContent, NotificationCenter,
+  ListIcon, ColumnsIcon, TableIcon,
 } from "../../plugins/building-blocks/skills/design-standard/files/components";
 import type { NotificationItem } from "../../plugins/building-blocks/skills/design-standard/files/components";
 import type { KanbanColumn, KanbanCard, CardMoveEvent } from "../../plugins/building-blocks/skills/design-standard/files/components";
@@ -57,6 +58,17 @@ const fontVars = (id: string): React.CSSProperties => {
   const f = fontPack(id);
   return { ["--font-sans" as any]: f.body, ["--font-display" as any]: f.display };
 };
+
+function seedNotifications(): NotificationItem[] {
+  const now = Date.now();
+  return [
+    { id: "n1", group: "Today", severity: "critical", title: "Filing overdue: 1702Q", body: "Princess Ventures Q3 statutory deadline passed.", timestamp: now - 7 * 60 * 1000, actionLabel: "Open obligation", onAction: () => {} },
+    { id: "n2", group: "Today", severity: "success", title: "Invoice 0012 filed", body: "Cathlyn marked it complete with proof of filing.", timestamp: now - 52 * 60 * 1000 },
+    { id: "n3", group: "Today", severity: "info", title: "Jaz mentioned you", body: "“Can you review the Beacon Co engagement letter?”", timestamp: now - 3 * 60 * 60 * 1000, read: true },
+    { id: "n4", group: "Earlier", severity: "warning", title: "Storage at 92%", body: "Archive older documents to free space.", timestamp: now - 28 * 60 * 60 * 1000 },
+    { id: "n5", group: "Earlier", severity: "info", title: "Nightly backup completed", timestamp: now - 30 * 60 * 60 * 1000, read: true },
+  ];
+}
 
 export function DesignStandardDemo() {
   return (
@@ -200,6 +212,7 @@ function DemoInner() {
   const [radio, setRadio] = useState("daily");
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [notifs, setNotifs] = useState<NotificationItem[]>(seedNotifications);
   const { toast } = useToast();
 
   const chip = (active: boolean) =>
@@ -287,6 +300,20 @@ function DemoInner() {
           fontFamily: "var(--font-sans)", border: "1px solid var(--color-border)", borderRadius: 14, padding: "var(--inset-card)",
         }}
       >
+        {/* mock app bar — the NotificationCenter lives top-right, where it does in a real app */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid var(--color-border)" }}>
+          <span style={{ fontSize: 15, fontWeight: 600, color: "var(--color-foreground)" }}>Your dashboard</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <NotificationCenter
+              align="end"
+              items={notifs}
+              onMarkRead={(id) => setNotifs((ns) => ns.map((n) => (n.id === id ? { ...n, read: true } : n)))}
+              onMarkAllRead={() => setNotifs((ns) => ns.map((n) => ({ ...n, read: true })))}
+              onItemClick={(it) => toast({ title: `Opened: ${String(it.title)}` })}
+            />
+            <Avatar initials="VP" status="online" />
+          </div>
+        </div>
         <p style={lbl}>Buttons · variants, sizes, states</p>
         <div style={{ ...row(), marginBottom: 10 }}>
           <Button variant="primary">Primary</Button>
@@ -430,16 +457,6 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
   const [view, setView] = React.useState<string | null>("board");
   const [otp, setOtp] = React.useState("");
   const [bannerOpen, setBannerOpen] = React.useState(true);
-  const [notifs, setNotifs] = React.useState<NotificationItem[]>(() => {
-    const now = Date.now();
-    return [
-      { id: "n1", group: "Today", severity: "critical", title: "Filing overdue: 1702Q", body: "Princess Ventures Q3 statutory deadline passed.", timestamp: now - 7 * 60 * 1000, actionLabel: "Open obligation", onAction: () => {} },
-      { id: "n2", group: "Today", severity: "success", title: "Invoice 0012 filed", body: "Cathlyn marked it complete with proof of filing.", timestamp: now - 52 * 60 * 1000 },
-      { id: "n3", group: "Today", severity: "info", title: "Jaz mentioned you", body: "“Can you review the Beacon Co engagement letter?”", timestamp: now - 3 * 60 * 60 * 1000, read: true },
-      { id: "n4", group: "Earlier", severity: "warning", title: "Storage at 92%", body: "Archive older documents to free space.", timestamp: now - 28 * 60 * 60 * 1000 },
-      { id: "n5", group: "Earlier", severity: "info", title: "Nightly backup completed", timestamp: now - 30 * 60 * 60 * 1000, read: true },
-    ];
-  });
   const { toast } = useToast();
 
   const COUNTRIES = [
@@ -759,7 +776,11 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
               aria-label="Layout"
               value={view}
               onValueChange={(v) => setView(v as string)}
-              options={[{ value: "list", label: "List" }, { value: "board", label: "Board" }, { value: "table", label: "Table" }]}
+              options={[
+                { value: "list", label: <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><ListIcon /> List</span> },
+                { value: "board", label: <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><ColumnsIcon /> Board</span> },
+                { value: "table", label: <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><TableIcon /> Table</span> },
+              ]}
             />
             <Separator orientation="vertical" style={{ height: 24 }} />
             <ToggleGroup type="multiple" aria-label="Format" size="sm" defaultValue={["bold"]}
@@ -771,14 +792,8 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
           </Toolbar>
           <p style={{ ...lbl, marginTop: 20 }}>Verification code</p>
           <OtpInput length={6} value={otp} onChange={setOtp} onComplete={(c) => toast({ title: `Code: ${c}` })} />
-          <p style={{ ...lbl, marginTop: 20 }}>Notification center · click the bell</p>
-          <NotificationCenter
-            align="start"
-            items={notifs}
-            onMarkRead={(id) => setNotifs((ns) => ns.map((n) => (n.id === id ? { ...n, read: true } : n)))}
-            onMarkAllRead={() => setNotifs((ns) => ns.map((n) => ({ ...n, read: true })))}
-            onItemClick={(it) => toast({ title: `Opened: ${String(it.title)}` })}
-          />
+          <p style={{ ...lbl, marginTop: 20 }}>Notification center</p>
+          <span style={{ fontSize: 13, color: "var(--color-muted-foreground)" }}>Shown in the app bar at the top — click the 🔔 next to the avatar.</span>
         </div>
       </div>
 

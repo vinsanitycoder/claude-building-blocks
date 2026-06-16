@@ -120,6 +120,9 @@ export type { BannerProps, BannerVariant } from "./Banner";
 export { OtpInput } from "./OtpInput";
 export type { OtpInputProps } from "./OtpInput";
 
+// — a few shared icons (the block ships a minimal inline set; real apps prefer Lucide/Tabler, §17) —
+export { ListIcon, ColumnsIcon, TableIcon, BellIcon } from "./icons";
+
 // — notifications (in-app inbox) —
 export { NotificationCenter } from "./NotificationCenter";
 export type { NotificationCenterProps, NotificationItem, NotificationSeverity } from "./NotificationCenter";
