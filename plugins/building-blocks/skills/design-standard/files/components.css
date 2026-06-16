@@ -623,10 +623,14 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 /* FileUpload — dropzone */
 .ds-dropzone { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: var(--space-1); text-align: center; padding: var(--space-8) var(--space-4);
-  border: 1.5px dashed var(--color-border); border-radius: var(--radius); background: var(--color-card);
+  border: 1.5px dashed var(--color-border); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--color-muted) 55%, var(--color-card));
   color: var(--color-muted-foreground); cursor: pointer;
-  transition: border-color var(--duration-fast), background var(--duration-fast); }
-.ds-dropzone:hover, .ds-dropzone:focus-visible { border-color: var(--color-ring); outline: none; }
+  transition: border-color var(--duration-fast), background var(--duration-fast), transform var(--duration-fast); }
+.ds-dropzone:hover, .ds-dropzone:focus-visible { border-color: var(--color-ring); outline: none;
+  background: color-mix(in srgb, var(--color-muted) 80%, var(--color-card)); }
+.ds-dropzone:active { transform: scale(.99);
+  background: color-mix(in srgb, var(--color-muted) 100%, var(--color-card)); border-color: var(--color-ring); }
 .ds-dropzone--over { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 8%, var(--color-card)); border-style: solid; }
 .ds-dropzone--disabled { opacity: .55; pointer-events: none; }
 .ds-dropzone__input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
