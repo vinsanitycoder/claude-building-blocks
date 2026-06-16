@@ -17,6 +17,7 @@ import {
   Accordion, AccordionItem, Stepper, CommandPalette,
   Field, NumberInput, SegmentedControl, Popover, HoverCard, Combobox, DatePicker,
   EmptyState, StatCard, DataTable, FileUpload, TagInput,
+  TreeView, InlineEdit, ContextMenu, Resizable, Toolbar, ToggleGroup, Timeline, Banner, OtpInput,
 } from "../../plugins/building-blocks/skills/design-standard/files/components";
 
 const THEMES = [
@@ -405,6 +406,11 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
   const [pickDate, setPickDate] = React.useState<string | null>(null);
   const [tags, setTags] = React.useState<string[]>(["design", "docs"]);
   const [emailErr, setEmailErr] = React.useState(false);
+  const [treeSel, setTreeSel] = React.useState<string | null>("inv-1");
+  const [acctName, setAcctName] = React.useState("Aurora Labs");
+  const [view, setView] = React.useState<string | null>("board");
+  const [otp, setOtp] = React.useState("");
+  const [bannerOpen, setBannerOpen] = React.useState(true);
   const { toast } = useToast();
 
   const COUNTRIES = [
@@ -662,6 +668,96 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
             title="No invoices yet"
             description="Invoices appear here once your first billing cycle closes."
             action={<Button size="sm">Create invoice</Button>}
+          />
+        </div>
+      </div>
+
+      <Separator style={{ margin: "24px 0" }} />
+      <p style={lbl}>Unusual batch · hierarchy, edit, overlay, layout, feedback, auth</p>
+
+      {bannerOpen && (
+        <Banner
+          variant="warning"
+          title="Sample data."
+          actions={<Button size="sm" variant="outline">Import yours</Button>}
+          onDismiss={() => setBannerOpen(false)}
+          style={{ marginBottom: 20 }}
+        >
+          This board is showing demo records. Connect a source to see live data.
+        </Banner>
+      )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 24, marginBottom: 20 }}>
+        <div>
+          <p style={lbl}>Tree view · right-click a row</p>
+          <ContextMenu
+            items={[
+              { id: "open", label: "Open" },
+              { id: "rename", label: "Rename", shortcut: "F2" },
+              "separator",
+              { id: "del", label: "Delete", destructive: true, shortcut: "⌫", onSelect: () => toast({ title: "Deleted" }) },
+            ]}
+          >
+            <div style={{ border: "1px solid var(--color-border)", borderRadius: "var(--radius)" }}>
+              <TreeView
+                aria-label="Documents"
+                defaultExpanded={["clients", "aurora"]}
+                selectedId={treeSel ?? undefined}
+                onSelect={setTreeSel}
+                nodes={[
+                  { id: "clients", label: "Clients", children: [
+                    { id: "aurora", label: "Aurora Labs", children: [
+                      { id: "inv-1", label: "Invoice 0012.pdf" },
+                      { id: "inv-2", label: "Engagement letter.pdf" },
+                    ]},
+                    { id: "beacon", label: "Beacon Co", children: [{ id: "inv-3", label: "COR 2303.pdf" }] },
+                  ]},
+                  { id: "templates", label: "Templates" },
+                ]}
+              />
+            </div>
+          </ContextMenu>
+        </div>
+
+        <div>
+          <p style={lbl}>Inline edit · click the value</p>
+          <div style={{ fontSize: 14 }}>
+            Account: <InlineEdit value={acctName} onSave={(v) => { setAcctName(v); toast({ title: "Saved" }); }} />
+          </div>
+          <p style={{ ...lbl, marginTop: 20 }}>Toolbar + toggle group</p>
+          <Toolbar aria-label="View options">
+            <ToggleGroup
+              aria-label="Layout"
+              value={view}
+              onValueChange={(v) => setView(v as string)}
+              options={[{ value: "list", label: "List" }, { value: "board", label: "Board" }, { value: "table", label: "Table" }]}
+            />
+            <Separator orientation="vertical" style={{ height: 24 }} />
+            <ToggleGroup type="multiple" aria-label="Format" size="sm" defaultValue={["bold"]}
+              options={[{ value: "bold", label: "B", "aria-label": "Bold" }, { value: "italic", label: "I", "aria-label": "Italic" }, { value: "underline", label: "U", "aria-label": "Underline" }]} />
+          </Toolbar>
+          <p style={{ ...lbl, marginTop: 20 }}>Verification code</p>
+          <OtpInput length={6} value={otp} onChange={setOtp} onComplete={(c) => toast({ title: `Code: ${c}` })} />
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 24, marginBottom: 8 }}>
+        <div>
+          <p style={lbl}>Resizable panes · drag the divider</p>
+          <Resizable defaultSize={42} min={20} max={75} aria-label="Documents and preview">
+            <div style={{ padding: 16, fontSize: 13, color: "var(--color-muted-foreground)" }}>Document list</div>
+            <div style={{ padding: 16, fontSize: 13, color: "var(--color-muted-foreground)" }}>Preview pane</div>
+          </Resizable>
+        </div>
+        <div>
+          <p style={lbl}>Timeline · activity feed</p>
+          <Timeline
+            items={[
+              { id: "1", tone: "success", title: "Invoice 0012 filed", time: "2:14 PM" },
+              { id: "2", tone: "default", title: "Reviewed by Cathlyn", time: "1:02 PM", description: "Approved with no changes." },
+              { id: "3", tone: "warning", title: "Marked due-soon", time: "Yesterday" },
+              { id: "4", tone: "muted", title: "Created from template", time: "Mon" },
+            ]}
           />
         </div>
       </div>

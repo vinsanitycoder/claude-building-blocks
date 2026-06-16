@@ -101,3 +101,21 @@ export { FileUpload } from "./FileUpload";
 export type { FileUploadProps } from "./FileUpload";
 export { TagInput } from "./TagInput";
 export type { TagInputProps } from "./TagInput";
+
+// — unusual batch (hierarchy, edit, overlay, layout, feedback, auth) —
+export { TreeView } from "./TreeView";
+export type { TreeViewProps, TreeNode } from "./TreeView";
+export { InlineEdit } from "./InlineEdit";
+export type { InlineEditProps } from "./InlineEdit";
+export { ContextMenu } from "./ContextMenu";
+export type { ContextMenuProps, ContextMenuItem } from "./ContextMenu";
+export { Resizable } from "./Resizable";
+export type { ResizableProps } from "./Resizable";
+export { Toolbar, ToggleGroup } from "./Toolbar";
+export type { ToolbarProps, ToggleGroupProps, ToggleGroupOption } from "./Toolbar";
+export { Timeline } from "./Timeline";
+export type { TimelineProps, TimelineItem, TimelineTone } from "./Timeline";
+export { Banner } from "./Banner";
+export type { BannerProps, BannerVariant } from "./Banner";
+export { OtpInput } from "./OtpInput";
+export type { OtpInputProps } from "./OtpInput";
