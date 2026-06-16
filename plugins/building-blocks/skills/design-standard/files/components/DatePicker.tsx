@@ -1,7 +1,7 @@
 import "../components.css";
 import * as React from "react";
 import { Calendar } from "./Calendar";
-import { ChevronDownIcon } from "./icons";
+import { CalendarIcon } from "./icons";
 
 export interface DatePickerProps {
   /** Selected date as ISO yyyy-mm-dd (zoneless) — or null. */
@@ -52,10 +52,10 @@ export function DatePicker({ value, onChange, min, max, placeholder = "Pick a da
         {...aria}
       >
         <span className={label ? "" : "ds-select-trigger__placeholder"}>{label ?? placeholder}</span>
-        <ChevronDownIcon className="ds-select-trigger__chevron" />
+        <CalendarIcon className="ds-select-trigger__icon" />
       </button>
       {open && (
-        <div className="ds-dd__panel" role="dialog" style={{ padding: "var(--space-1)" }}>
+        <div className="ds-dd__panel" role="dialog" style={{ minWidth: 0, width: "max-content", padding: "var(--space-2)" }}>
           <Calendar
             value={value ?? undefined}
             onChange={(d) => { onChange?.(d); setOpen(false); }}

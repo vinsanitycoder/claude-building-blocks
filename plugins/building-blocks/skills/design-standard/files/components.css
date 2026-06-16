@@ -242,6 +242,7 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-select-trigger__chevron { color: var(--color-muted-foreground); flex: none; transition: transform var(--duration-fast); }
 .ds-select-trigger[aria-expanded="true"] .ds-select-trigger__chevron { transform: rotate(180deg); }
 .ds-select-trigger__placeholder { color: var(--color-muted-foreground); }
+.ds-select-trigger__icon { color: var(--color-muted-foreground); flex: none; }
 
 /* ===== Slider ===== */
 .ds-slider { position: relative; width: 100%; padding: var(--space-2) 0; }
