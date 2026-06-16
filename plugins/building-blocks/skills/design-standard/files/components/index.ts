@@ -121,5 +121,5 @@ export { OtpInput } from "./OtpInput";
 export type { OtpInputProps } from "./OtpInput";
 
 // — kanban (drag-and-drop board, dnd-kit) —
-export { KanbanBoard } from "./KanbanBoard";
-export type { KanbanBoardProps, KanbanColumn, KanbanCard, CardMoveEvent, ColumnId, CardId } from "./KanbanBoard";
+export { KanbanBoard, KanbanCardContent } from "./KanbanBoard";
+export type { KanbanBoardProps, KanbanColumn, KanbanCard, CardMoveEvent, ColumnId, CardId, KanbanCardContentProps, KanbanLabel } from "./KanbanBoard";

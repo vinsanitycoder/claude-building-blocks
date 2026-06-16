@@ -18,7 +18,7 @@ import {
   Field, NumberInput, SegmentedControl, Popover, HoverCard, Combobox, DatePicker,
   EmptyState, StatCard, DataTable, FileUpload, TagInput,
   TreeView, InlineEdit, ContextMenu, Resizable, Toolbar, ToggleGroup, Timeline, Banner, OtpInput,
-  KanbanBoard,
+  KanbanBoard, KanbanCardContent,
 } from "../../plugins/building-blocks/skills/design-standard/files/components";
 import type { KanbanColumn, KanbanCard, CardMoveEvent } from "../../plugins/building-blocks/skills/design-standard/files/components";
 
@@ -736,7 +736,11 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
             />
             <Separator orientation="vertical" style={{ height: 24 }} />
             <ToggleGroup type="multiple" aria-label="Format" size="sm" defaultValue={["bold"]}
-              options={[{ value: "bold", label: "B", "aria-label": "Bold" }, { value: "italic", label: "I", "aria-label": "Italic" }, { value: "underline", label: "U", "aria-label": "Underline" }]} />
+              options={[
+                { value: "bold", label: <span style={{ fontWeight: 700 }}>B</span>, "aria-label": "Bold" },
+                { value: "italic", label: <span style={{ fontStyle: "italic", fontFamily: "Georgia, serif" }}>I</span>, "aria-label": "Italic" },
+                { value: "underline", label: <span style={{ textDecoration: "underline" }}>U</span>, "aria-label": "Underline" },
+              ]} />
           </Toolbar>
           <p style={{ ...lbl, marginTop: 20 }}>Verification code</p>
           <OtpInput length={6} value={otp} onChange={setOtp} onComplete={(c) => toast({ title: `Code: ${c}` })} />
@@ -800,12 +804,12 @@ function ExtendedDemo({ theme, dark, density, font }: { theme: string; dark: boo
 
 function KanbanDemo() {
   const initialCards: Record<string, KanbanCard> = {
-    c1: { id: "c1", title: "Wire OAuth callback", tag: "Eng", points: 3 },
-    c2: { id: "c2", title: "Q3 invoice batch", tag: "Finance", points: 2 },
-    c3: { id: "c3", title: "Onboard Beacon Co", tag: "Ops", points: 5 },
-    c4: { id: "c4", title: "Fix timezone bug", tag: "Eng", points: 2 },
-    c5: { id: "c5", title: "Draft engagement letter", tag: "Legal", points: 1 },
-    c6: { id: "c6", title: "Reconcile R2 backups", tag: "Ops", points: 3 },
+    c1: { id: "c1", title: "Wire OAuth callback", desc: "Reps re-connect Outlook; needs Mail.Read scope before the next send.", tag: "Eng", priority: "High", points: 3, who: "VP" },
+    c2: { id: "c2", title: "Q3 invoice batch", desc: "Generate + attach the 12 multi-destination proposals for review.", tag: "Finance", priority: "Med", points: 2, who: "CT" },
+    c3: { id: "c3", title: "Onboard Beacon Co", desc: "Tick registered tax types, generate the draft obligation set.", tag: "Ops", priority: "Low", points: 5, who: "JZ" },
+    c4: { id: "c4", title: "Fix timezone bug", desc: "Calendar dates drifting a day west of UTC — store ISO, zoneless.", tag: "Eng", priority: "High", points: 2, who: "VP" },
+    c5: { id: "c5", title: "Draft engagement letter", tag: "Legal", priority: "Med", points: 1, who: "CT" },
+    c6: { id: "c6", title: "Reconcile R2 backups", desc: "Verify nightly Neon→R2 dumps for the last 7 days.", tag: "Ops", priority: "Low", points: 3, who: "JZ" },
   };
   const [cards] = React.useState(initialCards);
   const [columns, setColumns] = React.useState<KanbanColumn[]>([
@@ -827,23 +831,33 @@ function KanbanDemo() {
   }
 
   const tagColor: Record<string, string> = { Eng: "var(--chart-2)", Finance: "var(--chart-1)", Ops: "var(--chart-3)", Legal: "var(--chart-4)" };
+  const priorityColor: Record<string, string> = { High: "var(--color-destructive)", Med: "var(--color-warning)", Low: "var(--color-success)" };
 
   return (
     <KanbanBoard
       columns={columns}
       cards={cards}
       onCardMove={move}
+      accentPosition="left"
+      cardAccent={(card) => priorityColor[String(card.priority)]}
       renderCard={(card) => (
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 500, color: "var(--color-foreground)", marginBottom: 6 }}>{String(card.title)}</div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--color-muted-foreground)" }}>
-              <span style={{ width: 8, height: 8, borderRadius: 999, background: tagColor[String(card.tag)] ?? "var(--color-muted-foreground)" }} />
-              {String(card.tag)}
-            </span>
-            <span style={{ fontSize: 12, fontVariantNumeric: "tabular-nums", color: "var(--color-muted-foreground)" }}>{String(card.points)} pts</span>
-          </div>
-        </div>
+        <KanbanCardContent
+          labels={[{ color: tagColor[String(card.tag)] ?? "var(--color-muted-foreground)", label: String(card.tag) }]}
+          title={String(card.title)}
+          description={card.desc ? String(card.desc) : undefined}
+          meta={
+            <>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: 999, background: priorityColor[String(card.priority)] }} />
+                {String(card.priority)}
+              </span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontVariantNumeric: "tabular-nums" }}>
+                {String(card.points)} pts
+                <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 20, height: 20, borderRadius: 999, background: "var(--color-muted)", color: "var(--color-foreground)", fontSize: 10, fontWeight: 600 }}>{String(card.who)}</span>
+              </span>
+            </>
+          }
+        />
       )}
     />
   );

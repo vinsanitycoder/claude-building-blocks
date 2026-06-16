@@ -805,11 +805,17 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
   border: 1.5px dashed var(--color-border); border-radius: calc(var(--radius) - 2px);
   font-size: var(--text-xs); color: var(--color-muted-foreground); }
 
-.ds-kanban__card { display: flex; align-items: stretch; gap: var(--space-1);
+.ds-kanban__card { position: relative; overflow: hidden; display: flex; align-items: stretch; gap: var(--space-1);
   background: var(--kb-card-bg, var(--color-card)); color: var(--color-card-foreground);
   border: 1px solid var(--color-border); border-radius: var(--kb-card-radius, calc(var(--radius) - 2px));
   box-shadow: var(--kb-card-shadow, var(--shadow-sm)); padding: var(--kb-card-pad, var(--space-1));
   transition: box-shadow var(--duration-fast), border-color var(--duration-fast); }
+/* colour-coding strip — one dimension (type/priority/owner); pair with label text, never colour alone */
+.ds-kanban__card-accent { position: absolute; z-index: 1; }
+.ds-kanban__card-accent--left { top: 0; bottom: 0; left: 0; width: 4px; }
+.ds-kanban__card-accent--top { top: 0; left: 0; right: 0; height: 4px; }
+.ds-kanban__card--accent-left { padding-left: calc(var(--kb-card-pad, var(--space-1)) + 4px); }
+.ds-kanban__card--accent-top { padding-top: calc(var(--kb-card-pad, var(--space-1)) + 4px); }
 .ds-kanban__card:hover { border-color: color-mix(in srgb, var(--color-foreground) 18%, var(--color-border)); box-shadow: var(--shadow-md); }
 .ds-kanban__card--dragging { opacity: var(--kb-card-opacity-dragging, .4); }
 .ds-kanban__card--overlay { box-shadow: var(--kb-card-shadow-lift, var(--shadow-lg));
@@ -821,3 +827,15 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 .ds-kanban__handle:hover { background: var(--color-accent); color: var(--color-accent-foreground); }
 .ds-kanban__handle:active { cursor: grabbing; }
 .ds-kanban__handle:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 1px; }
+
+/* KanbanCardContent — the standard card anatomy: labels → title → description → meta */
+.ds-kanban-card { display: flex; flex-direction: column; gap: var(--space-1); }
+.ds-kanban-card__labels { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-bottom: var(--space-1); }
+.ds-kanban-card__label { display: inline-flex; align-items: center; height: 1.25rem; padding: 0 var(--space-2);
+  border-radius: 999px; font-size: var(--text-xs); font-weight: 500; line-height: 1; }
+.ds-kanban-card__label-bar { display: inline-block; width: 2rem; height: 0.375rem; border-radius: 999px; }
+.ds-kanban-card__title { font-size: var(--text-sm); font-weight: 500; color: var(--color-foreground); line-height: 1.35; }
+.ds-kanban-card__desc { font-size: var(--text-xs); color: var(--color-muted-foreground); line-height: 1.45;
+  display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.ds-kanban-card__meta { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  margin-top: var(--space-1); font-size: var(--text-xs); color: var(--color-muted-foreground); }
