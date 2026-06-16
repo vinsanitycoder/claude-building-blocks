@@ -188,6 +188,14 @@ function Canvas({ children, plain }: { children: React.ReactNode; plain?: boolea
 function Subhead({ children }: { children: React.ReactNode }) {
   return <p className="ds-doc__subhead">{children}</p>;
 }
+/** A labelled example group — subhead hugs its content (12px); groups are spaced by their parent's gap. */
+function Group({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
+  return <div className="ds-doc__group"><Subhead>{label}</Subhead>{children}</div>;
+}
+/** A vertical stack of groups (used inside multi-column canvas layouts) with even rhythm. */
+function Col({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)", minWidth: 0, ...style }}>{children}</div>;
+}
 
 function DemoInner() {
   const [theme, setTheme] = useState<string>("slate");
@@ -396,118 +404,133 @@ function DemoInner() {
           {/* Forms & inputs */}
           <DocSection id="forms" title="Forms & inputs" desc="Inputs, selects, and the Field wrapper bind label + control + help/error with the right proximity. Short fields are sized to their content, not stretched full-width.">
             <Canvas>
-              <Subhead>Inputs &amp; select</Subhead>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 16, marginBottom: 24 }}>
-                <div>
-                  <Label htmlFor="d-email">Email</Label>
-                  <Input id="d-email" placeholder="you@example.com" />
-                  <HelpText>We never share it.</HelpText>
+              <Group label="Inputs &amp; select">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 16 }}>
+                  <div>
+                    <Label htmlFor="d-email">Email</Label>
+                    <Input id="d-email" placeholder="you@example.com" />
+                    <HelpText>We never share it.</HelpText>
+                  </div>
+                  <div>
+                    <Label htmlFor="d-bad">Email</Label>
+                    <Input id="d-bad" defaultValue="bad@" error aria-describedby="d-bad-err" />
+                    <ErrorText id="d-bad-err">Enter a valid email.</ErrorText>
+                  </div>
+                  <div>
+                    <Label htmlFor="d-sel">Plan</Label>
+                    <Select id="d-sel" defaultValue="pro" options={[{ value: "free", label: "Free" }, { value: "pro", label: "Pro" }, { value: "team", label: "Team" }]} />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="d-bad">Email</Label>
-                  <Input id="d-bad" defaultValue="bad@" error aria-describedby="d-bad-err" />
-                  <ErrorText id="d-bad-err">Enter a valid email.</ErrorText>
+              </Group>
+              <Group label="Field wrapper · combobox · date · number">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "var(--stack-group)" }}>
+                  <Field label="Work email" help="We'll only use this for billing." error={emailErr ? "Enter a valid email address." : undefined}>
+                    <Input placeholder="you@company.com" onBlur={(e) => setEmailErr(!!e.target.value && !e.target.value.includes("@"))} />
+                  </Field>
+                  <Field label="Country"><Combobox options={COUNTRIES} value={combo} onValueChange={setCombo} placeholder="Select country" /></Field>
+                  <Field label="Renewal date"><DatePicker value={pickDate} onChange={setPickDate} /></Field>
+                  <Field label="Seats" help="Sized to its content."><NumberInput value={qty} onValueChange={setQty} min={1} max={99} /></Field>
                 </div>
-                <div>
-                  <Label htmlFor="d-sel">Plan</Label>
-                  <Select id="d-sel" defaultValue="pro" options={[{ value: "free", label: "Free" }, { value: "pro", label: "Pro" }, { value: "team", label: "Team" }]} />
-                </div>
-              </div>
-              <Subhead>Field wrapper · combobox · date · number · tags</Subhead>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "var(--stack-group)" }}>
-                <Field label="Work email" help="We'll only use this for billing." error={emailErr ? "Enter a valid email address." : undefined}>
-                  <Input placeholder="you@company.com" onBlur={(e) => setEmailErr(!!e.target.value && !e.target.value.includes("@"))} />
-                </Field>
-                <Field label="Country"><Combobox options={COUNTRIES} value={combo} onValueChange={setCombo} placeholder="Select country" /></Field>
-                <Field label="Renewal date"><DatePicker value={pickDate} onChange={setPickDate} /></Field>
-                <Field label="Seats" help="Sized to its content."><NumberInput value={qty} onValueChange={setQty} min={1} max={99} /></Field>
-              </div>
-              <Subhead>Tag input</Subhead>
-              <TagInput value={tags} onChange={setTags} placeholder="Add a tag…" />
+              </Group>
+              <Group label="Tag input">
+                <TagInput value={tags} onChange={setTags} placeholder="Add a tag…" />
+              </Group>
             </Canvas>
           </DocSection>
 
           {/* Selection & ranges */}
           <DocSection id="selection" title="Selection & ranges" desc="Switches, checkboxes, radios, segmented controls, and sliders — every actionable control shares the same hover / press / focus states.">
             <Canvas>
-              <div style={{ ...row(24), marginBottom: 24 }}>
-                {field(<><Switch checked={sw} onCheckedChange={setSw} aria-label="Notifications" /> Switch</>)}
-                {field(<><Checkbox checked={ck} onCheckedChange={setCk} aria-label="Accept" /> Checkbox</>)}
-                {field(<><Checkbox indeterminate aria-label="Some selected" /> Indeterminate</>)}
-                <RadioGroup value={radio} onValueChange={setRadio} style={{ display: "flex", gap: 14 }}>
-                  {field(<><RadioGroupItem value="daily" /> Daily</>)}
-                  {field(<><RadioGroupItem value="weekly" /> Weekly</>)}
-                </RadioGroup>
+              <Group label="Toggles &amp; radios">
+                <div style={row(24)}>
+                  {field(<><Switch checked={sw} onCheckedChange={setSw} aria-label="Notifications" /> Switch</>)}
+                  {field(<><Checkbox checked={ck} onCheckedChange={setCk} aria-label="Accept" /> Checkbox</>)}
+                  {field(<><Checkbox indeterminate aria-label="Some selected" /> Indeterminate</>)}
+                  <RadioGroup value={radio} onValueChange={setRadio} style={{ display: "flex", gap: 14 }}>
+                    {field(<><RadioGroupItem value="daily" /> Daily</>)}
+                    {field(<><RadioGroupItem value="weekly" /> Weekly</>)}
+                  </RadioGroup>
+                </div>
+              </Group>
+              <Group label="Segmented control">
                 <SegmentedControl value={seg} onValueChange={setSeg} aria-label="Range"
                   options={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }, { value: "month", label: "Month" }]} />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 24 }}>
-                <div>
-                  <Label>Budget: ${(slider * 100).toLocaleString()}</Label>
-                  <Slider value={slider} onValueChange={setSlider} showValueTooltip formatValue={(n) => `$${(n * 100).toLocaleString()}`} />
+              </Group>
+              <Group label="Slider &amp; progress">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 24 }}>
+                  <div>
+                    <Label>Budget: ${(slider * 100).toLocaleString()}</Label>
+                    <Slider value={slider} onValueChange={setSlider} showValueTooltip formatValue={(n) => `$${(n * 100).toLocaleString()}`} />
+                  </div>
+                  <div>
+                    <Label>Upload progress</Label>
+                    <Progress value={70} />
+                    <HelpText>70% — 14 of 20 files</HelpText>
+                  </div>
                 </div>
-                <div>
-                  <Label>Upload progress</Label>
-                  <Progress value={70} />
-                  <HelpText>70% — 14 of 20 files</HelpText>
-                </div>
-              </div>
+              </Group>
             </Canvas>
           </DocSection>
 
           {/* Overlays & menus */}
           <DocSection id="overlays" title="Overlays & menus" desc="Dropdowns, dialogs, popovers, hover cards, drawers, the command palette and right-click menus — all anchored, dismissible, and keyboard-operable.">
             <Canvas>
-              <div style={{ ...row(), marginBottom: 16 }}>
-                <DropdownMenu trigger={<Button variant="outline">Options ▾</Button>}>
-                  <DropdownMenuItem onSelect={() => toast({ title: "Profile" })}>Profile</DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => toast({ title: "Settings" })}>Settings</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem destructive onSelect={() => toast({ title: "Deleted", variant: "destructive" })}>Delete account</DropdownMenuItem>
-                </DropdownMenu>
-                <Button variant="outline" onClick={() => setOpen(true)}>Open dialog</Button>
-                <Popover trigger={<Button variant="outline">Filters</Button>}>
-                  <Stack gap={3}>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>Filter results</div>
-                    <div><Label>Status</Label><Input placeholder="Any" /></div>
-                    <Button size="sm">Apply</Button>
-                  </Stack>
-                </Popover>
-                <Button variant="outline" onClick={() => setDrawerOpen(true)}>Open drawer</Button>
-                <Button variant="outline" onClick={() => setCmdOpen(true)}>Command palette ⌘K</Button>
-              </div>
-              <div style={{ ...row(24), alignItems: "center" }}>
-                <Tooltip content="A one-line label"><span tabIndex={0} style={{ borderBottom: "1px dotted var(--color-muted-foreground)", cursor: "help", fontSize: 14, outline: "none" }}>Hover for tooltip</span></Tooltip>
-                <HoverCard trigger={<a href="#" onClick={(e) => e.preventDefault()} style={{ color: "var(--color-primary)" }}>@aurora</a>}>
-                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                    <Avatar initials="AL" status="online" />
-                    <div><div style={{ fontWeight: 600 }}>Aurora Labs</div><div style={{ color: "var(--color-muted-foreground)", fontSize: 13 }}>Scale plan · 48 seats</div></div>
-                  </div>
-                </HoverCard>
-                <ContextMenu items={[{ id: "open", label: "Open" }, { id: "rename", label: "Rename", shortcut: "F2" }, "separator", { id: "del", label: "Delete", destructive: true, shortcut: "⌫", onSelect: () => toast({ title: "Deleted" }) }]}>
-                  <span style={{ fontSize: 14, padding: "6px 10px", border: "1px dashed var(--color-border)", borderRadius: 8, cursor: "context-menu" }}>Right-click me</span>
-                </ContextMenu>
-                <Button variant="outline" onClick={() => toast({ title: "Changes saved", description: "Your edits are live.", variant: "success" })}>Toast: success</Button>
-                <Button variant="outline" onClick={() => toast({ title: "Couldn't connect", description: "Check your network.", variant: "destructive" })}>Toast: error</Button>
-              </div>
+              <Group label="Menus, dialog &amp; drawer">
+                <div style={row()}>
+                  <DropdownMenu trigger={<Button variant="outline">Options ▾</Button>}>
+                    <DropdownMenuItem onSelect={() => toast({ title: "Profile" })}>Profile</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => toast({ title: "Settings" })}>Settings</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem destructive onSelect={() => toast({ title: "Deleted", variant: "destructive" })}>Delete account</DropdownMenuItem>
+                  </DropdownMenu>
+                  <Button variant="outline" onClick={() => setOpen(true)}>Open dialog</Button>
+                  <Popover trigger={<Button variant="outline">Filters</Button>}>
+                    <Stack gap={3}>
+                      <div style={{ fontWeight: 600, fontSize: 14 }}>Filter results</div>
+                      <div><Label>Status</Label><Input placeholder="Any" /></div>
+                      <Button size="sm">Apply</Button>
+                    </Stack>
+                  </Popover>
+                  <Button variant="outline" onClick={() => setDrawerOpen(true)}>Open drawer</Button>
+                  <Button variant="outline" onClick={() => setCmdOpen(true)}>Command palette ⌘K</Button>
+                </div>
+              </Group>
+              <Group label="Hover, context &amp; toast">
+                <div style={{ ...row(20), alignItems: "center" }}>
+                  <Tooltip content="A one-line label"><span tabIndex={0} style={{ borderBottom: "1px dotted var(--color-muted-foreground)", cursor: "help", fontSize: 14, outline: "none" }}>Hover for tooltip</span></Tooltip>
+                  <HoverCard trigger={<a href="#" onClick={(e) => e.preventDefault()} style={{ color: "var(--color-primary)", fontSize: 14 }}>@aurora</a>}>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <Avatar initials="AL" status="online" />
+                      <div><div style={{ fontWeight: 600 }}>Aurora Labs</div><div style={{ color: "var(--color-muted-foreground)", fontSize: 13 }}>Scale plan · 48 seats</div></div>
+                    </div>
+                  </HoverCard>
+                  <ContextMenu items={[{ id: "open", label: "Open" }, { id: "rename", label: "Rename", shortcut: "F2" }, "separator", { id: "del", label: "Delete", destructive: true, shortcut: "⌫", onSelect: () => toast({ title: "Deleted" }) }]}>
+                    <span style={{ fontSize: 14, padding: "6px 10px", border: "1px dashed var(--color-border)", borderRadius: 8, cursor: "context-menu" }}>Right-click me</span>
+                  </ContextMenu>
+                  <Button variant="outline" size="sm" onClick={() => toast({ title: "Changes saved", description: "Your edits are live.", variant: "success" })}>Toast: success</Button>
+                  <Button variant="outline" size="sm" onClick={() => toast({ title: "Couldn't connect", description: "Check your network.", variant: "destructive" })}>Toast: error</Button>
+                </div>
+              </Group>
             </Canvas>
           </DocSection>
 
           {/* Navigation */}
           <DocSection id="navigation" title="Navigation" desc="Tabs, breadcrumbs, pagination, the multi-step wizard, and a roving-focus toolbar.">
             <Canvas>
-              <Tabs defaultValue="overview">
-                <TabsList>
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="activity">Activity</TabsTrigger>
-                  <TabsTrigger value="settings">Settings</TabsTrigger>
-                </TabsList>
-                <TabsContent value="overview"><span style={{ fontSize: 14, color: "var(--color-muted-foreground)" }}>Peer views switch in place under a sliding underline.</span></TabsContent>
-                <TabsContent value="activity"><span style={{ fontSize: 14, color: "var(--color-muted-foreground)" }}>A feed of recent changes would render here.</span></TabsContent>
-                <TabsContent value="settings"><span style={{ fontSize: 14, color: "var(--color-muted-foreground)" }}>Configuration controls live here.</span></TabsContent>
-              </Tabs>
-              <Separator />
-              <Stack gap={4} style={{ marginBottom: 8 }}>
+              <Group label="Tabs">
+                <Tabs defaultValue="overview">
+                  <TabsList>
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="activity">Activity</TabsTrigger>
+                    <TabsTrigger value="settings">Settings</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="overview"><span style={{ fontSize: 14, color: "var(--color-muted-foreground)" }}>Peer views switch in place under a sliding underline.</span></TabsContent>
+                  <TabsContent value="activity"><span style={{ fontSize: 14, color: "var(--color-muted-foreground)" }}>A feed of recent changes would render here.</span></TabsContent>
+                  <TabsContent value="settings"><span style={{ fontSize: 14, color: "var(--color-muted-foreground)" }}>Configuration controls live here.</span></TabsContent>
+                </Tabs>
+              </Group>
+              <Group label="Breadcrumbs · pagination · stepper · toolbar">
+              <Stack gap={4}>
                 <Breadcrumbs items={[{ label: "Home", href: "#" }, { label: "Projects", href: "#" }, { label: "Apollo" }]} />
                 <Pagination page={page} totalPages={10} onPageChange={setPage} />
                 <Stepper current={1} steps={[{ label: "Account", description: "Email + password" }, { label: "Details", description: "Tell us about you" }, { label: "Preferences" }, { label: "Done" }]} />
@@ -527,24 +550,27 @@ function DemoInner() {
                     ]} />
                 </Toolbar>
               </Stack>
+              </Group>
             </Canvas>
           </DocSection>
 
           {/* Feedback & status */}
           <DocSection id="feedback" title="Feedback & status" desc="Inline alerts, the full-bleed banner, badges, and async states — severity always pairs colour with an icon, never colour alone.">
             <Canvas>
-              {bannerOpen && (
-                <Banner variant="warning" title="Sample data." actions={<Button size="sm" variant="outline">Import yours</Button>} onDismiss={() => setBannerOpen(false)} style={{ marginBottom: 20 }}>
-                  This board is showing demo records. Connect a source to see live data.
-                </Banner>
-              )}
-              <Stack gap={2} style={{ marginBottom: 20 }}>
-                <Alert variant="info" title="Heads up.">This is an informational callout that stays in the page.</Alert>
-                <Alert variant="success" title="Saved." onDismiss={() => toast({ title: "Dismissed" })}>Your changes were published successfully.</Alert>
-                <Alert variant="warning" title="Almost full">Storage at 92%. Consider archiving older items.</Alert>
-                <Alert variant="destructive" title="Couldn't connect.">Check your network and try again.</Alert>
-              </Stack>
-              <Subhead>Badges &amp; async states</Subhead>
+              <Group label="Banner &amp; inline alerts">
+                <Stack gap={2}>
+                  {bannerOpen && (
+                    <Banner variant="warning" title="Sample data." actions={<Button size="sm" variant="outline">Import yours</Button>} onDismiss={() => setBannerOpen(false)}>
+                      This board is showing demo records. Connect a source to see live data.
+                    </Banner>
+                  )}
+                  <Alert variant="info" title="Heads up.">This is an informational callout that stays in the page.</Alert>
+                  <Alert variant="success" title="Saved." onDismiss={() => toast({ title: "Dismissed" })}>Your changes were published successfully.</Alert>
+                  <Alert variant="warning" title="Almost full">Storage at 92%. Consider archiving older items.</Alert>
+                  <Alert variant="destructive" title="Couldn't connect.">Check your network and try again.</Alert>
+                </Stack>
+              </Group>
+              <Group label="Badges &amp; async states">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 12, alignItems: "start" }}>
                 <Card interactive>
                   <CardTitle>Project settings</CardTitle>
@@ -569,21 +595,22 @@ function DemoInner() {
                   <EmptyState title="No invoices yet" description="They appear once your first cycle closes." action={<Button size="sm">Create invoice</Button>} />
                 </div>
               </div>
+              </Group>
             </Canvas>
           </DocSection>
 
           {/* Data display */}
           <DocSection id="data" title="Data display" desc="Metric cards, a sortable table, hierarchy tree, activity timeline, avatars, and code — the surfaces a dashboard is built from.">
             <Canvas>
-              <Subhead>Metric cards</Subhead>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 16, marginBottom: 24 }}>
-                <StatCard label="MRR" value="$20,040" delta="12%" trend="up" chart={<Sparkline data={[8, 9, 11, 10, 13, 15, 20]} width={64} height={24} />} />
-                <StatCard label="Active seats" value="139" delta="8" trend="up" />
-                <StatCard label="Churn" value="2.1%" delta="0.4%" trend="up" upIsGood={false} />
-                <StatCard label="Trials" value="6" delta="flat" trend="flat" />
-              </div>
-              <Subhead>Sortable table</Subhead>
-              <div style={{ marginBottom: 24 }}>
+              <Group label="Metric cards">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 16 }}>
+                  <StatCard label="MRR" value="$20,040" delta="12%" trend="up" chart={<Sparkline data={[8, 9, 11, 10, 13, 15, 20]} width={64} height={24} />} />
+                  <StatCard label="Active seats" value="139" delta="8" trend="up" />
+                  <StatCard label="Churn" value="2.1%" delta="0.4%" trend="up" upIsGood={false} />
+                  <StatCard label="Trials" value="6" delta="flat" trend="flat" />
+                </div>
+              </Group>
+              <Group label="Sortable table">
                 <DataTable rows={TABLE_ROWS} rowKey={(r) => r.name} density="compact"
                   columns={[
                     { key: "name", header: "Account", sortable: true },
@@ -592,30 +619,33 @@ function DemoInner() {
                     { key: "mrr", header: "MRR", align: "right", sortable: true, cell: (r) => `$${r.mrr.toLocaleString()}` },
                     { key: "status", header: "Status", cell: (r) => <Badge variant={r.status === "Past due" ? "destructive" : r.status === "Trial" ? "warning" : "success"}>{r.status}</Badge> },
                   ]} />
-              </div>
+              </Group>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 24, alignItems: "start" }}>
-                <div>
-                  <Subhead>Tree · right-click a row</Subhead>
+                <Group label="Tree · right-click a row">
                   <ContextMenu items={[{ id: "open", label: "Open" }, { id: "rename", label: "Rename", shortcut: "F2" }, "separator", { id: "del", label: "Delete", destructive: true, onSelect: () => toast({ title: "Deleted" }) }]}>
                     <div style={{ border: "1px solid var(--color-border)", borderRadius: "var(--radius)" }}>
                       <TreeView aria-label="Documents" defaultExpanded={["clients", "aurora"]} selectedId={treeSel ?? undefined} onSelect={setTreeSel}
                         nodes={[{ id: "clients", label: "Clients", children: [{ id: "aurora", label: "Aurora Labs", children: [{ id: "inv-1", label: "Invoice 0012.pdf" }, { id: "inv-2", label: "Engagement letter.pdf" }] }, { id: "beacon", label: "Beacon Co", children: [{ id: "inv-3", label: "COR 2303.pdf" }] }] }, { id: "templates", label: "Templates" }]} />
                     </div>
                   </ContextMenu>
-                </div>
-                <div>
-                  <Subhead>Timeline</Subhead>
-                  <Timeline items={[
-                    { id: "1", tone: "success", title: "Invoice 0012 filed", time: "2:14 PM" },
-                    { id: "2", tone: "default", title: "Reviewed by Cathlyn", time: "1:02 PM", description: "Approved with no changes." },
-                    { id: "3", tone: "warning", title: "Marked due-soon", time: "Yesterday" },
-                    { id: "4", tone: "muted", title: "Created from template", time: "Mon" },
-                  ]} />
-                  <Subhead>Avatars · kbd · code</Subhead>
-                  <AvatarGroup max={3}><Avatar initials="AT" status="online" /><Avatar initials="MR" /><Avatar initials="JL" /><Avatar initials="SK" /><Avatar initials="VR" /></AvatarGroup>
-                  <div style={{ fontSize: 14, margin: "12px 0" }}>Open with <Kbd keys={["⌘", "K"]} /> · Save <Kbd keys={["⌘", "S"]} /> · Quit <Kbd>Esc</Kbd></div>
-                  <CodeBlock filename="globals.css" copyable code={":root {\n  --radius: 0.625rem;\n  --color-primary: #1c2024;\n}"}>{":root {\n  --radius: 0.625rem;\n  --color-primary: #1c2024;\n}"}</CodeBlock>
-                </div>
+                </Group>
+                <Col>
+                  <Group label="Timeline">
+                    <Timeline items={[
+                      { id: "1", tone: "success", title: "Invoice 0012 filed", time: "2:14 PM" },
+                      { id: "2", tone: "default", title: "Reviewed by Cathlyn", time: "1:02 PM", description: "Approved with no changes." },
+                      { id: "3", tone: "warning", title: "Marked due-soon", time: "Yesterday" },
+                      { id: "4", tone: "muted", title: "Created from template", time: "Mon" },
+                    ]} />
+                  </Group>
+                  <Group label="Avatars · kbd · code">
+                    <Stack gap={3}>
+                      <AvatarGroup max={3}><Avatar initials="AT" status="online" /><Avatar initials="MR" /><Avatar initials="JL" /><Avatar initials="SK" /><Avatar initials="VR" /></AvatarGroup>
+                      <div style={{ fontSize: 14 }}>Open with <Kbd keys={["⌘", "K"]} /> · Save <Kbd keys={["⌘", "S"]} /> · Quit <Kbd>Esc</Kbd></div>
+                      <CodeBlock filename="globals.css" copyable code={":root {\n  --radius: 0.625rem;\n  --color-primary: #1c2024;\n}"}>{":root {\n  --radius: 0.625rem;\n  --color-primary: #1c2024;\n}"}</CodeBlock>
+                    </Stack>
+                  </Group>
+                </Col>
               </div>
             </Canvas>
           </DocSection>
@@ -663,28 +693,33 @@ function DemoInner() {
           {/* Power components */}
           <DocSection id="advanced" title="Power components" desc="The heavier building blocks: resizable panes, click-to-edit, accordion, file upload, and a verification-code input.">
             <Canvas>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 24, marginBottom: 24 }}>
-                <div>
-                  <Subhead>Resizable panes · drag the divider</Subhead>
-                  <Resizable defaultSize={42} min={20} max={75} aria-label="Documents and preview">
-                    <div style={{ padding: 16, fontSize: 13, color: "var(--color-muted-foreground)" }}>Document list</div>
-                    <div style={{ padding: 16, fontSize: 13, color: "var(--color-muted-foreground)" }}>Preview pane</div>
-                  </Resizable>
-                  <Subhead>Inline edit · click the value</Subhead>
-                  <div style={{ fontSize: 14 }}>Account: <InlineEdit value={acctName} onSave={(v) => { setAcctName(v); toast({ title: "Saved" }); }} /></div>
-                  <Subhead>Verification code</Subhead>
-                  <OtpInput length={6} value={otp} onChange={setOtp} onComplete={(c) => toast({ title: `Code: ${c}` })} />
-                </div>
-                <div>
-                  <Subhead>File upload</Subhead>
-                  <FileUpload accept="image/png,image/jpeg,.pdf" maxSize={15 * 1024 * 1024} hint="PNG, JPG or PDF · up to 15MB"
-                    onFiles={(f) => toast({ title: `Selected ${f[0]?.name}` })} onReject={(b) => toast({ title: b[0]?.reason ?? "Rejected", variant: "destructive" })} />
-                  <Subhead>Accordion</Subhead>
-                  <Accordion open={accordionOpen} onOpenChange={setAccordionOpen} multiple>
-                    <AccordionItem id="spacing" title="What's frozen in the base?">Spacing, type scale, button sizes, motion, dark-mode mechanism, and component anatomy — all fixed.</AccordionItem>
-                    <AccordionItem id="brand" title="What can a brand override?">Only colour tokens, the font pack, the logo, and optionally the single <code>--radius</code> value.</AccordionItem>
-                  </Accordion>
-                </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 24, alignItems: "start" }}>
+                <Col>
+                  <Group label="Resizable panes · drag the divider">
+                    <Resizable defaultSize={42} min={20} max={75} aria-label="Documents and preview">
+                      <div style={{ padding: 16, fontSize: 13, color: "var(--color-muted-foreground)" }}>Document list</div>
+                      <div style={{ padding: 16, fontSize: 13, color: "var(--color-muted-foreground)" }}>Preview pane</div>
+                    </Resizable>
+                  </Group>
+                  <Group label="Inline edit · click the value">
+                    <div style={{ fontSize: 14 }}>Account: <InlineEdit value={acctName} onSave={(v) => { setAcctName(v); toast({ title: "Saved" }); }} /></div>
+                  </Group>
+                  <Group label="Verification code">
+                    <OtpInput length={6} value={otp} onChange={setOtp} onComplete={(c) => toast({ title: `Code: ${c}` })} />
+                  </Group>
+                </Col>
+                <Col>
+                  <Group label="File upload">
+                    <FileUpload accept="image/png,image/jpeg,.pdf" maxSize={15 * 1024 * 1024} hint="PNG, JPG or PDF · up to 15MB"
+                      onFiles={(f) => toast({ title: `Selected ${f[0]?.name}` })} onReject={(b) => toast({ title: b[0]?.reason ?? "Rejected", variant: "destructive" })} />
+                  </Group>
+                  <Group label="Accordion">
+                    <Accordion open={accordionOpen} onOpenChange={setAccordionOpen} multiple>
+                      <AccordionItem id="spacing" title="What's frozen in the base?">Spacing, type scale, button sizes, motion, dark-mode mechanism, and component anatomy — all fixed.</AccordionItem>
+                      <AccordionItem id="brand" title="What can a brand override?">Only colour tokens, the font pack, the logo, and optionally the single <code>--radius</code> value.</AccordionItem>
+                    </Accordion>
+                  </Group>
+                </Col>
               </div>
             </Canvas>
           </DocSection>
