@@ -37,6 +37,27 @@
 .ds-btn--link { background: transparent; color: var(--color-link); height: auto; padding: 0 2px; text-decoration: underline; text-underline-offset: .15em; }
 .ds-btn--link:hover { box-shadow: none; transform: none; text-decoration-thickness: .12em; }
 
+/* Anchors used as UI chrome (Link/<a> with a component class) must NOT inherit the content-link
+   styling (underline + link/visited colour) from globals.css — that's the recurring purple-underlined
+   button bug. Foundation reset so it never recurs, for every skin. */
+a.ds-btn, a.ds-btn:visited, a.ds-btn:hover, a.ds-btn:focus { text-decoration: none; }
+a.ds-btn--primary, a.ds-btn--primary:visited { color: var(--color-primary-foreground); }
+a.ds-btn--destructive, a.ds-btn--destructive:visited { color: var(--color-destructive-foreground); }
+a.ds-btn--outline, a.ds-btn--outline:visited,
+a.ds-btn--ghost, a.ds-btn--ghost:visited,
+a.ds-btn--secondary, a.ds-btn--secondary:visited { color: var(--color-foreground); }
+a.ds-btn--link, a.ds-btn--link:visited { color: var(--color-link); }      /* link-style button keeps link colour, not visited-purple */
+a.ds-sidebar__item, a.ds-sidebar__item:visited { color: inherit; text-decoration: none; }
+a:has(.ds-card), a:has(.ds-card):visited { color: inherit; text-decoration: none; }  /* card wrapped in a link */
+
+/* Small, low-key icon button for CHROME / utility toggles (theme switch, panel collapse, etc.) — ~28px,
+   transparent, subtle hover tint. NOT the chunky filled .ds-btn--icon. Keep ≥44px hit area on touch. */
+.ds-iconbtn { display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; flex: none;
+  padding: 0; border: 0; background: transparent; color: var(--color-muted-foreground); cursor: pointer;
+  border-radius: calc(var(--radius) - 2px); transition: background var(--duration-fast), color var(--duration-fast); }
+.ds-iconbtn:hover { background: color-mix(in srgb, var(--color-foreground) 8%, transparent); color: var(--color-foreground); }
+.ds-iconbtn:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+
 /* ===== Input / Textarea ===== */
 .ds-input {
   display: block; width: 100%; height: var(--control-md); padding: 0 var(--space-3);
@@ -353,17 +374,31 @@ textarea.ds-input { height: auto; min-height: 5rem; padding: var(--space-2) var(
 
 /* ===== Sidebar ===== */
 .ds-sidebar { width: 16rem; flex: none; background: var(--color-card);
-  border-right: 1px solid var(--color-border); padding: var(--space-3); display: flex; flex-direction: column; gap: 2px;
-  transition: width var(--duration-base) var(--ease-standard); }
-.ds-sidebar--collapsed { width: 3.5rem; }
-.ds-sidebar__item { display: flex; align-items: center; gap: var(--space-3);
-  background: transparent; border: none; color: var(--color-foreground); cursor: pointer;
-  padding: var(--space-2) var(--space-3); border-radius: calc(var(--radius) - 2px);
-  font: inherit; text-align: left; transition: background-color var(--duration-fast), color var(--duration-fast), box-shadow var(--duration-fast); }
-.ds-sidebar__item:hover { background: var(--color-accent); color: var(--color-accent-foreground); box-shadow: var(--shadow-sm); }
-.ds-sidebar__item--active { background: var(--color-muted); color: var(--color-foreground); font-weight: 500; }
-.ds-sidebar__icon { width: 1.25rem; height: 1.25rem; flex: none; display: inline-flex; align-items: center; justify-content: center; }
-.ds-sidebar--collapsed .ds-sidebar__label { display: none; }
+  border-right: 1px solid var(--color-border); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-4);
+  transition: width var(--duration-base) var(--ease-standard); overflow-x: hidden; }
+/* §16 collapse = a 56px ICON RAIL (icons + tooltips stay; labels/group-labels hide). ⌘B toggles it. */
+.ds-sidebar--collapsed { width: 3.5rem; padding-left: var(--space-2); padding-right: var(--space-2); }
+.ds-sidebar__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.ds-sidebar--collapsed .ds-sidebar__top { flex-direction: column; gap: var(--space-2); }
+.ds-sidebar__group { display: flex; flex-direction: column; gap: 2px; }
+.ds-sidebar__group-label { padding: 0 var(--space-2) var(--space-1); font-size: var(--text-xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .08em; color: color-mix(in srgb, var(--color-muted-foreground) 80%, transparent); }
+.ds-sidebar__item { display: flex; align-items: center; gap: var(--space-3); width: 100%;
+  background: transparent; border: none; color: var(--color-muted-foreground); cursor: pointer;
+  height: 2.25rem; padding: 0 var(--space-2); border-radius: calc(var(--radius) - 2px); white-space: nowrap;
+  font: inherit; font-size: var(--text-sm); font-weight: 500; text-align: left;
+  transition: background-color var(--duration-fast), color var(--duration-fast), box-shadow var(--duration-fast); }
+.ds-sidebar__item:hover { background: color-mix(in srgb, var(--color-foreground) 6%, transparent); color: var(--color-foreground); }
+/* active = subtle primary accent pill + lit icon (Apple/Claude-style, not a flat grey block) */
+.ds-sidebar__item--active { color: var(--color-accent-foreground); font-weight: 600;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 18%, transparent), color-mix(in srgb, var(--color-primary) 9%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 22%, transparent); }
+.ds-sidebar__icon { width: 1.25rem; height: 1.25rem; flex: none; display: inline-flex; align-items: center; justify-content: center; opacity: .85; }
+.ds-sidebar__item--active .ds-sidebar__icon { opacity: 1; color: var(--color-primary); }
+.ds-sidebar--collapsed .ds-sidebar__label,
+.ds-sidebar--collapsed .ds-sidebar__group-label { display: none; }
+.ds-sidebar--collapsed .ds-sidebar__item { justify-content: center; padding-left: 0; padding-right: 0; }
+.ds-sidebar__spacer { margin-top: auto; }
 
 /* ===== App shell ===== */
 .ds-shell { display: flex; min-height: 100dvh; background: var(--color-background); }

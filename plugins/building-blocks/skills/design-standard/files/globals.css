@@ -61,6 +61,19 @@
   --shadow-lg:0 10px 15px -3px hsl(0 0% 0% / .12), 0 4px 6px -4px hsl(0 0% 0% / .1);
   --shadow-xl:0 20px 25px -5px hsl(0 0% 0% / .14), 0 8px 10px -6px hsl(0 0% 0% / .12);
 
+  /* GLASS MATERIAL (translucency) — a material, not a colour. INERT by default (cards/rails render solid);
+     a skin (e.g. Slate Glass) overrides these + applies the recipe so surfaces frost over a background wash.
+     Recipe: background:var(--glass-bg); backdrop-filter:var(--glass-blur);
+             border:1px solid var(--glass-border); box-shadow:var(--glass-shadow), inset 0 1px 0 var(--glass-hi); */
+  --glass-blur:none;                    /* skins set e.g. blur(22px) saturate(150%) */
+  --glass-bg:var(--color-card);         /* opaque fallback = a normal card surface */
+  --glass-bg-strong:var(--color-card);
+  --glass-rail:var(--color-card);       /* nav-rail material (skins make it more translucent) */
+  --glass-rail-blur:var(--glass-blur);
+  --glass-border:var(--color-border);
+  --glass-hi:transparent;               /* inset top highlight (skins set a light tint) */
+  --glass-shadow:var(--shadow-md);
+
   --duration-fast:150ms; --duration-base:200ms; --duration-slow:300ms;
   --ease-standard:cubic-bezier(.2,0,0,1);
   --ease-decelerate:cubic-bezier(0,0,0,1);

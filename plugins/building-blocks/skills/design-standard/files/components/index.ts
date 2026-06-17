@@ -53,8 +53,8 @@ export type { CodeBlockProps } from "./Code";
 // — layout & shell —
 export { Stack, Container, Section } from "./Layout";
 export type { StackProps, ContainerProps, SectionProps } from "./Layout";
-export { TopBar, Sidebar, SidebarItem, AppShell, ShellMain } from "./Shell";
-export type { TopBarProps, SidebarProps, SidebarItemProps } from "./Shell";
+export { TopBar, Sidebar, SidebarItem, SidebarGroup, SidebarToggle, useSidebarCollapse, AppShell, ShellMain } from "./Shell";
+export type { TopBarProps, SidebarProps, SidebarItemProps, SidebarGroupProps } from "./Shell";
 export { Breadcrumbs } from "./Breadcrumbs";
 export type { BreadcrumbsProps, BreadcrumbItem } from "./Breadcrumbs";
 export { Pagination } from "./Pagination";
@@ -121,7 +121,7 @@ export { OtpInput } from "./OtpInput";
 export type { OtpInputProps } from "./OtpInput";
 
 // — a few shared icons (the block ships a minimal inline set; real apps prefer Lucide/Tabler, §17) —
-export { ListIcon, ColumnsIcon, TableIcon, BellIcon } from "./icons";
+export { ListIcon, ColumnsIcon, TableIcon, BellIcon, CalendarIcon } from "./icons";
 
 // — notifications (in-app inbox) —
 export { NotificationCenter } from "./NotificationCenter";

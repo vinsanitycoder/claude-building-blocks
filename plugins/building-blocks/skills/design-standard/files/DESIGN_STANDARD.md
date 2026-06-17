@@ -234,6 +234,29 @@ One shadow per elevation level. A raised card gets `border + shadow-sm`, not a g
 `1px` solid `--color-border` for separators and resting card edges. Use borders + spacing to
 create structure before reaching for shadow or color.
 
+### 5.5 Translucency / glass material **[Convention — optional, skin-driven]**
+
+A frosted-glass surface (Apple vibrancy) is a **material, not a colour** — an optional layer a skin opts into
+(e.g. the **Slate Glass** skin). The foundation ships inert `--glass-*` tokens (cards render solid by default);
+a skin overrides them and applies the recipe.
+
+- **Tokens:** `--glass-blur` (e.g. `blur(22px) saturate(150%)`), `--glass-bg`, `--glass-bg-strong`, `--glass-rail`
+  + `--glass-rail-blur` (more translucent + stronger blur, for nav rails — the Apple `.sidebar` vibrancy),
+  `--glass-border`, `--glass-hi` (inset top highlight), `--glass-shadow`.
+- **Recipe** (apply to `.ds-card`, the sidebar, popovers — whatever should frost):
+  ```css
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);          /* + -webkit- prefix */
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+  ```
+- **It only reads over a background WASH.** Glass frosts whatever is *behind* it — give the app a soft
+  background colour-wash (radial-gradient over `--color-background`, `background-attachment: fixed`) or the
+  effect is invisible.
+- **Set expectations: glass is intentionally subtle light-on-light** (the physics — white frosting white shows
+  little), and **strongest in dark mode**. Don't crank the opacity to force it in light mode; that just looks
+  muddy. The nav rail uses the more-translucent `--glass-rail` so the wash shows through it.
+
 ---
 
 ## 6. Buttons & interactive controls
@@ -263,6 +286,15 @@ hit area to 44px. **[Verified]** Material's equivalent is 48dp. **[Verified]**
 | `ghost` | transparent; `--color-accent` on hover |
 | `destructive` | solid `--color-destructive` |
 | `link` | text only, underline on hover |
+
+### Clean & minimal — restraint is the rule **[Convention]**
+- **One filled `primary` per screen** (verb + object), reserved for the single primary action. Everything else
+  is `outline` / `ghost` / `link`. A page full of filled buttons reads as AI-slop (§2).
+- **Chrome / utility toggles** (theme switch, sidebar collapse, row actions, dismiss) are **small (~28px)
+  low-key icon buttons** — transparent, subtle hover tint — the `.ds-iconbtn` class, **not** the chunky filled
+  `.ds-btn--icon`. They sit quietly; they're not the action the eye should land on. Keep the ≥44px hit area on
+  touch even when the glyph is ~16px.
+- Icons inside buttons follow §17: thin 1.5 stroke.
 
 ### State matrix (every variant implements all) **[Convention]**
 
@@ -484,6 +516,13 @@ designed theme from AI slop.
 | **Ruby** | bold rose | mauve | `#ca244d` | consumer, social, beauty |
 | **Amber** | warm gold | sand (warm) | `#ffc53d`† | luxury, hospitality |
 | **Mono** | high-contrast | pure gray | `#000000` | accessibility-first, editorial |
+| **Slate Glass** | cool steel + Apple glass | slate-blue | `#4d6896` | premium internal tools, dashboards |
+
+**Slate Glass** is more than a palette — it's the first **glass skin** (a brand layer): cool greyish-blue,
+muted steel-blue accent, **system font** (= SF Pro on macOS), softer radius (`0.7rem` / cards `1.1rem`), and the
+frosted-glass material (§5.5) on cards + the sidebar rail over a cool background wash. Apply on
+`<html data-theme="slate-glass">` (add `class="dark"` for dark; glass is strongest in dark). Light-first; the
+glass is intentionally subtle light-on-light.
 
 † Amber is light, so its `primary-foreground` is **near-black, not white** — the one group that
 inverts the button. Also make `warning` visually distinct (icon, not hue alone) when amber is the brand.
@@ -710,15 +749,41 @@ popover 1070 · tooltip 1080 · toast 1090`.
 **Density:** comfortable (default) = row/control 40–48px, vertical padding 12–16px; compact = 32px height, 8px
 padding. Switch **vertical** rhythm only; keep horizontal padding constant.
 
+**16.1 Adopt the Shell — never hand-roll a sidebar.** Use the standard's `AppShell` / `Sidebar` / `SidebarGroup`
+/ `SidebarItem` / `SidebarToggle` + `useSidebarCollapse()` (the `.ds-sidebar*` CSS). Re-building the shell per
+app was a real, repeated source of rework — every app re-solved collapse, grouping, active state, and anchor
+styling slightly differently. The component bakes them in.
+
+**16.2 Collapse to a 56px ICON RAIL.** `useSidebarCollapse()` ships the proven behaviour: **⌘B / Ctrl+B** toggles
+it, persisted to `localStorage`, **200ms** transition. Collapsed = a 56px rail — icons stay, labels + group
+labels hide; pass `title` on each `SidebarItem` so the label shows as a tooltip. Grouped nav with small uppercase
+section labels; the **active item = a subtle primary-accent pill with a lit icon** (not a flat grey block).
+
+**16.3 Reflow vs pinned — pick one per app (you cannot have both).** An icon rail that *reclaims* space and
+content that *never moves* are physically incompatible.
+- **Reflow (the standard default):** the sidebar is in-flow (`.ds-shell` is `display:flex`); collapsing it lets
+  the content **expand** into the freed space. Best for data-dense apps that want the extra width.
+- **Pinned:** `position:fixed` sidebar + a fixed `margin-left` on the main; content **never shifts**, but the
+  rail shrinks within its reserved lane, leaving a **gap** of background. Best when layout stability matters more
+  than reclaiming space. (This is what the hr_payroll build chose.)
+
+**16.4 Anchors as nav/buttons.** Routed nav items and link-buttons are `<a>` (e.g. Next `<Link>`), but the
+foundation styles bare `<a>` as a content link (underline + link/visited colour). The foundation **resets** any
+anchor carrying a component class — `a.ds-btn*`, `a.ds-sidebar__item`, `a:has(.ds-card)` — so a `<Link className="ds-btn">`
+never inherits the purple-underline (esp. `:visited`). Use the component classes and it's handled; don't restyle
+per app.
+
 ---
 
 ## 17. Icons **[Convention]**
 
-- **One icon set, app-wide** (e.g. Lucide — the shadcn default — or Tabler). Never mix families or blend
-  outline + filled from different sets.
+- **One minimal line set, app-wide** (Lucide / Tabler / our inline set). Never mix families or blend outline +
+  filled from different sets.
+- **Thin stroke: 1.5 (not 2px+).** Light, clean line icons — the Claude/Apple aesthetic, not chunky. The
+  standard's inline icon set ships `strokeWidth: 1.5`; set the same on Lucide via `strokeWidth={1.5}`. Never the
+  same icon at two weights.
 - **Sizes from a small scale:** `16px` (inline / dense), `20px` (default UI / buttons), `24px` (touch /
   prominent). Match icon size to adjacent text size.
-- **Consistent stroke weight** (Lucide = 2px @24, scale proportionally). Never the same icon at two weights.
 - **Optical alignment:** centre to text cap-height (often a `-1–2px` nudge), `gap: 6–8px` to the label. One
   concept = one glyph, everywhere.
 - **Accessibility:** decorative icons `aria-hidden="true"`; icon-only controls need an `aria-label`. An icon is

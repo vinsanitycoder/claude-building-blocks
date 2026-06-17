@@ -117,3 +117,17 @@
   .ds-doc__navlink { white-space: nowrap; }
   .ds-doc__main { padding: var(--space-6) var(--space-4) 4rem; }
 }
+
+/* Slate Glass skin: frost the doc-site surfaces so the glass material is visible in the playground.
+   (Playground-only — the shipped skin frosts real .ds-card / .ds-sidebar; these mirror it for the demo chrome.) */
+[data-theme="slate-glass"] .ds-doc__canvas,
+[data-theme="slate-glass"] .ds-doc__themebar {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+}
+[data-theme="slate-glass"] .ds-doc__sidebar {
+  background: var(--glass-rail);
+  -webkit-backdrop-filter: var(--glass-rail-blur); backdrop-filter: var(--glass-rail-blur);
+}

@@ -20,7 +20,8 @@ import {
   EmptyState, StatCard, DataTable, FileUpload, TagInput,
   TreeView, InlineEdit, ContextMenu, Resizable, Toolbar, ToggleGroup, Timeline, Banner, OtpInput,
   KanbanBoard, KanbanCardContent, NotificationCenter,
-  ListIcon, ColumnsIcon, TableIcon,
+  ListIcon, ColumnsIcon, TableIcon, BellIcon, CalendarIcon,
+  Sidebar, SidebarGroup, SidebarItem, SidebarToggle, useSidebarCollapse,
 } from "../../plugins/building-blocks/skills/design-standard/files/components";
 import type { NotificationItem } from "../../plugins/building-blocks/skills/design-standard/files/components";
 import type { KanbanColumn, KanbanCard, CardMoveEvent } from "../../plugins/building-blocks/skills/design-standard/files/components";
@@ -28,6 +29,7 @@ import type { KanbanColumn, KanbanCard, CardMoveEvent } from "../../plugins/buil
 const THEMES = [
   ["slate", "#1c2024"], ["ocean", "#0d74ce"], ["forest", "#218358"], ["iris", "#5753c6"],
   ["terracotta", "#c2410c"], ["ruby", "#ca244d"], ["amber", "#ffc53d"], ["mono", "#000000"],
+  ["slate-glass", "#4d6896"],
 ] as const;
 
 const lbl = { fontSize: 12, fontWeight: 500, color: "var(--color-muted-foreground)", margin: "0 0 12px" } as const;
@@ -166,6 +168,7 @@ const NAV: NavGroup[] = [
     { id: "dates", title: "Dates" },
   ]},
   { label: "Patterns", items: [
+    { id: "shell", title: "App shell" },
     { id: "kanban", title: "Kanban board" },
     { id: "advanced", title: "Power components" },
   ]},
@@ -285,7 +288,8 @@ function DemoInner() {
       className={["ds-doc", dark ? "dark" : ""].filter(Boolean).join(" ")}
       data-theme={theme}
       data-density={density === "default" ? undefined : density}
-      style={fontVars(font)}
+      /* a glass skin brings its own font (SF Pro) — don't let the font dial override it */
+      style={theme === "slate-glass" ? undefined : fontVars(font)}
     >
       <aside className="ds-doc__sidebar">
         <div className="ds-doc__brand">
@@ -683,6 +687,13 @@ function DemoInner() {
             </Canvas>
           </DocSection>
 
+          {/* App shell */}
+          <DocSection id="shell" title="App shell" desc="The Sidebar collapses to a 56px icon rail — click the panel toggle or press ⌘B / Ctrl+B. Grouped nav with section labels; the active item is a subtle accent pill with a lit icon. Adopt this Shell — never hand-roll a sidebar.">
+            <Canvas>
+              <ShellDemo />
+            </Canvas>
+          </DocSection>
+
           {/* Kanban */}
           <DocSection id="kanban" title="Kanban board" desc="Drag a card by its ⠿ handle — or keyboard: Tab to a handle, Space to lift, arrows to move, Space to drop. Colour-coded by priority, with WIP limits and live announcements.">
             <Canvas>
@@ -756,6 +767,48 @@ function DemoInner() {
         { id: "t", group: "Settings", label: "Toggle theme", onSelect: () => toast({ title: "Theme toggled" }) },
         { id: "h", group: "Help", label: "Read the docs", onSelect: () => toast({ title: "Docs" }) },
       ]} />
+    </div>
+  );
+}
+
+function ShellDemo() {
+  const { collapsed, toggle } = useSidebarCollapse("ds-demo-sidebar");
+  const [active, setActive] = React.useState("dashboard");
+  const items = [
+    { group: "Main", entries: [
+      { id: "dashboard", label: "Dashboard", icon: <ColumnsIcon /> },
+      { id: "reports", label: "Reports", icon: <ListIcon /> },
+    ]},
+    { group: "Workspace", entries: [
+      { id: "calendar", label: "Calendar", icon: <CalendarIcon /> },
+      { id: "table", label: "Records", icon: <TableIcon /> },
+      { id: "alerts", label: "Alerts", icon: <BellIcon /> },
+    ]},
+  ];
+  return (
+    <div style={{ display: "flex", height: 360, border: "1px solid var(--color-border)", borderRadius: "var(--radius)", overflow: "hidden" }}>
+      <Sidebar collapsed={collapsed} style={{ height: "100%", borderRight: "1px solid var(--color-border)" }}>
+        <div className="ds-sidebar__top">
+          {!collapsed && <span style={{ fontWeight: 600, fontSize: 14, paddingLeft: 6 }}>Acme</span>}
+          <SidebarToggle collapsed={collapsed} onClick={toggle} />
+        </div>
+        {items.map((g) => (
+          <SidebarGroup key={g.group} label={g.group}>
+            {g.entries.map((e) => (
+              <SidebarItem key={e.id} icon={e.icon} active={active === e.id} title={e.label} onClick={() => setActive(e.id)}>
+                {e.label}
+              </SidebarItem>
+            ))}
+          </SidebarGroup>
+        ))}
+        <div className="ds-sidebar__spacer" />
+      </Sidebar>
+      <main style={{ flex: 1, minWidth: 0, padding: "var(--space-6)", overflow: "auto" }}>
+        <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.01em" }}>{items.flatMap((g) => g.entries).find((e) => e.id === active)?.label}</div>
+        <p style={{ fontSize: 14, color: "var(--color-muted-foreground)", marginTop: 6 }}>
+          Press <Kbd keys={["⌘", "B"]} /> (or click the panel icon) to collapse the sidebar to an icon rail. Content reflows into the freed space.
+        </p>
+      </main>
     </div>
   );
 }

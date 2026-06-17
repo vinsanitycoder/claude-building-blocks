@@ -73,6 +73,18 @@ there's nothing to drift.
   colour as the only signal.
 - **Sentence case everywhere; buttons are `verb + object`; errors say what+why+fix** (§18). Charts use the
   Okabe-Ito `--chart-*` palette, not the brand accent (§20).
+- **Icons: thin (1.5 stroke), one minimal line set** (§17) — clean/Apple, not chunky 2px+. Lucide: `strokeWidth={1.5}`.
+- **Buttons: clean + minimal** (§6) — ONE filled `primary` per screen (verb+object); everything else outline/ghost/
+  link. **Chrome/utility toggles** (theme, sidebar collapse, dismiss, row actions) are small ~28px low-key
+  **`.ds-iconbtn`** icon buttons, NOT the chunky `.ds-btn--icon`.
+- **Adopt the Shell — never hand-roll a sidebar** (§16). Use `AppShell`/`Sidebar`/`SidebarGroup`/`SidebarItem`/
+  `SidebarToggle` + `useSidebarCollapse()`: 56px icon-rail collapse, ⌘B, grouped nav, active accent-pill. Decide
+  reflow (default) vs pinned per app — you can't have an icon rail that reclaims space AND content that never moves.
+- **Anchors-as-buttons/nav are handled by the foundation** — give a routed `<Link>` a component class
+  (`ds-btn`, `ds-sidebar__item`) and it won't inherit content-link underline/visited-purple. Don't restyle per app.
+- **Glass material (§5.5) is optional + skin-driven.** Cards are solid unless a glass skin (e.g. Slate Glass,
+  `data-theme="slate-glass"`) sets `--glass-*` + applies the recipe. Glass needs a background wash and is subtle
+  light-on-light / strongest in dark.
 
 ## Keep these invariants
 - Structure is frozen; only the brand layer changes colour/font/logo/radius. If a brand needs to change spacing or
@@ -125,6 +137,11 @@ real refactor — keep the list short and treat it as a checklist:
 13. **Verify spacing visually at ≥1280px, in light AND dark.** Token values alone don't prove the composition is
     right; screenshot/look. A collapsed (≈1px) preview viewport lies about every measurement — check `innerWidth`
     first.
+14. **Anchors as buttons/nav don't show link styling.** A routed `<Link className="ds-btn…">` or
+    `a.ds-sidebar__item` must NOT be underlined or turn **purple on `:visited`** — the foundation resets this, so
+    the fix is to USE the component class (not hand-restyle). Check visited links + chrome anchors in both modes.
+15. **Chrome toggles aren't chunky.** Theme/collapse/dismiss/row-action buttons use `.ds-iconbtn` (~28px, quiet),
+    not `.ds-btn--icon`. Icons are thin (1.5 stroke), not 2px+. Don't hand-roll a sidebar — adopt the Shell (§16).
 
 ### Quick search to catch leaks
 After refactoring, ripgrep the touched files for the patterns above:
